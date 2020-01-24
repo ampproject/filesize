@@ -1,5 +1,5 @@
 {
-  "name": "@kristoferbaxter/filesize",
+  "name": "@ampproject/filesize",
   "version": "1.0.0",
   "description": "Audit the filesize of items specified in package.json.",
   "author": "Kristofer Baxter",
