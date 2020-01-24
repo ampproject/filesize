@@ -1,0 +1,92 @@
+{
+  "name": "@kristoferbaxter/filesize",
+  "version": "0.2.0",
+  "description": "Audit the filesize of items specified in package.json.",
+  "author": "Kristofer Baxter",
+  "license": "Apache-2.0",
+  "main": "dist/filesize",
+  "files": [
+    "dist"
+  ],
+  "bin": {
+    "filesize": "./dist/filesize"
+  },
+  "scripts": {
+    "pretest": "tsc -p test/tsconfig.json",
+    "test": "ava -v",
+    "clean": "rimraf dist",
+    "build": "rollup -c; shx chmod a+x dist/filesize",
+    "try": "./dist/filesize",
+    "release": "np",
+    "prepublishOnly": "yarn npm-run-all clean build"
+  },
+  "dependencies": {
+    "bytes": "3.1.0",
+    "kleur": "3.0.3",
+    "mri": "1.1.4"
+  },
+  "devDependencies": {
+    "@types/bytes": "3.0.0",
+    "@types/mri": "1.1.0",
+    "@types/node": "12.11.5",
+    "@rollup/plugin-commonjs": "11.0.1",
+    "@rollup/plugin-node-resolve": "7.0.0",
+    "@rollup/plugin-typescript": "2.1.0",
+    "ava": "2.4.0",
+    "magic-string": "0.25.6",
+    "np": "5.2.1",
+    "npm-run-all": "4.1.5",
+    "husky": "4.2.1",
+    "lint-staged": "10.0.2",
+    "prettier": "1.19.1",
+    "rimraf": "3.0.0",
+    "rollup": "1.29.1",
+    "shx": "0.3.2",
+    "tslib": "1.10.0",
+    "typescript": "3.7.5"
+  },
+  "volta": {
+    "node": "12.14.1",
+    "yarn": "1.21.1"
+  },
+  "filesize": [
+    {
+      "path": "./dist/filesize",
+      "compression": "brotli",
+      "maxSize": "4.5 kB"
+    },
+    {
+      "path": "./dist/filesize",
+      "compression": "gzip",
+      "maxSize": "6 kB"
+    },
+    {
+      "path": "./dist/filesize",
+      "compression": "none",
+      "maxSize": "20 kB"
+    }
+  ],
+  "ava": {
+    "require": [
+      "esm"
+    ],
+    "babel": false,
+    "files": [
+      "test/output/**/*.test.js"
+    ]
+  },
+  "lint-staged": {
+    "*.ts": [
+      "prettier --config .prettierrc --write"
+    ],
+    "*.test.js": [
+      "prettier --config .prettierrc --write"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn npm-run-all clean build test",
+      "pre-commit": "lint-staged"
+    }
+  }
+}

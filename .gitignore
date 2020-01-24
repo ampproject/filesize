@@ -1,0 +1,9 @@
+output/
+test/output/
+node_modules/
+.vscode/
+.DS_Store
+yarn-error.log
+yarn.lock
+package-lock.json
+dist/*
