@@ -11,6 +11,10 @@
   "bin": {
     "filesize": "./dist/filesize"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ampproject/filesize.git"
+  },
   "scripts": {
     "pretest": "tsc -p test/tsconfig.json",
     "test": "ava -v",
