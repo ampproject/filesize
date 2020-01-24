@@ -35,7 +35,7 @@
     "@rollup/plugin-typescript": "2.1.0",
     "@types/bytes": "3.0.0",
     "@types/mri": "1.1.0",
-    "@types/node": "12.11.5",
+    "@types/node": "12.12.25",
     "ava": "2.4.0",
     "husky": "4.2.1",
     "lint-staged": "10.0.2",
