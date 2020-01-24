@@ -33,7 +33,7 @@
     "@rollup/plugin-commonjs": "11.0.1",
     "@rollup/plugin-node-resolve": "7.0.0",
     "@rollup/plugin-typescript": "2.1.0",
-    "@types/bytes": "3.0.0",
+    "@types/bytes": "3.1.0",
     "@types/mri": "1.1.0",
     "@types/node": "12.12.25",
     "ava": "2.4.0",
