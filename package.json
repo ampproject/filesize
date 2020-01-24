@@ -78,9 +78,6 @@
   "lint-staged": {
     "*.ts": [
       "prettier --config .prettierrc --write"
-    ],
-    "*.test.js": [
-      "prettier --config .prettierrc --write"
     ]
   },
   "husky": {
