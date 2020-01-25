@@ -36,7 +36,7 @@
     "@types/bytes": "3.1.0",
     "@types/mri": "1.1.0",
     "@types/node": "12.12.25",
-    "ava": "2.4.0",
+    "ava": "3.0.0",
     "husky": "4.2.1",
     "lint-staged": "10.0.2",
     "magic-string": "0.25.6",
@@ -71,10 +71,6 @@
     }
   ],
   "ava": {
-    "require": [
-      "esm"
-    ],
-    "babel": false,
     "files": [
       "test/output/**/*.test.js"
     ]
