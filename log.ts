@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import kleur from 'kleur';
+const kleur = require('kleur');
 
 // Disable output colors for test runs.
 kleur.enabled = !('AVA_PATH' in process.env);
 
 /**
  * Format output as an error message.
- * @param output 
+ * @param output
  */
 export function MakeError(output: string): string {
   return `${kleur.red('error')} ${output}`;
@@ -29,7 +29,7 @@ export function MakeError(output: string): string {
 
 /**
  * Display output as an error message on the console.
- * @param output 
+ * @param output
  */
 export function LogError(output: string): void {
   console.log(MakeError(output));
@@ -37,7 +37,7 @@ export function LogError(output: string): void {
 
 /**
  * Display output as a success message on the console.
- * @param output 
+ * @param output
  */
 export function LogPassingOutput(output: string): void {
   console.log(`${kleur.green('success')} ${kleur.white(output)}`);
@@ -45,7 +45,7 @@ export function LogPassingOutput(output: string): void {
 
 /**
  * Display output as a failure message on the console.
- * @param output 
+ * @param output
  */
 export function LogFailingOutput(output: string): void {
   console.log(`${kleur.red('failure')} ${kleur.white(output)}`);
