@@ -1,8 +1,5 @@
 {
-  "filesize": [
-    {
-      "path": "test/config-validation/fixtures/compression-missing/index.js",
-      "maxSize": "100 KB"
-    }
-  ]
+  "filesize": {
+    "test/config-validation/fixtures/compression-missing/index.js": {}
+  }
 }

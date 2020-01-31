@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 The AMP HTML Authors. All Rights Reserved.
+ * Copyright 2020 The AMP HTML Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,75 +14,69 @@
  * limitations under the License.
  */
 
-import { ItemConfig, Compression } from './Condition';
-import { isFile } from '../fs';
+import { Compression, ItemConfig } from '../validation/Condition';
 import { resolve } from 'path';
+import { isFile } from '../fs';
 const bytes = require('bytes');
-import { MakeError } from '../log';
-
-const READABLE_KEY_NAMES = ['path', 'compression', 'maxSize'];
 
 /**
  * Format input string to a known Compression Enum Value.
  * @param fsValue
  */
-function compressionValue(fsValue: string): { compression: Compression; error: string | null } {
+function compressionValue(fsValue: string): [Compression, string | null] {
   switch (fsValue.toLowerCase()) {
     case 'brotli':
-      return { compression: Compression.BROTLI, error: null };
+      return [Compression.BROTLI, null];
     case 'gzip':
-      return { compression: Compression.GZIP, error: null };
+      return [Compression.GZIP, null];
     case '':
     case 'none':
-      return { compression: Compression.NONE, error: null };
+      return [Compression.NONE, null];
     default:
-      return { compression: Compression.NONE, error: `Invalid compression value '${fsValue}'` };
+      return [Compression.NONE, `Invalid compression value '${fsValue}'`];
   }
 }
 
-/**
- * Ensure a File config entry contains all the necessary keys.
- * @param bundle
- */
-export function FileConfigContainsKeys(fileConfig: { [key: string]: string }): { success: boolean; invalid: number | null } {
-  const mandatoryValues = READABLE_KEY_NAMES.map(key => fileConfig[key]);
-  const missingKeyIndex = mandatoryValues.findIndex(item => typeof item !== 'string');
-
-  return { success: missingKeyIndex < 0, invalid: missingKeyIndex < 0 ? null : missingKeyIndex };
-}
-
-/**
- * Validate a File config contains necessary keys and valid values.
- * @param fileConfig
- * @param index
- */
 export default async function ValidateFileConfig(
-  fileConfig: { path: string; compression: string; maxSize: string },
+  originalPath: string,
   index: number,
-): Promise<{ success: boolean; config: ItemConfig | null; error: string | null }> {
-  const path = resolve(fileConfig.path);
-  const { compression, error: compressionError } = compressionValue(fileConfig.compression);
-  const maxSize = bytes(fileConfig.maxSize);
-
-  const invalidValue = [await isFile(path), compressionError === null, maxSize > 0].findIndex(item => item === false);
-  if (invalidValue >= 0) {
-    const valueErrorMapping = ['(path is not a valid file)', `(${compressionError})`, '(maxSize is not valid)'];
-
+  compressionConfig: { [key: string]: string },
+): Promise<{ success: boolean; config: Array<ItemConfig> | null; error: string | null }> {
+  const entries = Object.entries(compressionConfig);
+  if (entries.length === 0) {
     return {
       success: false,
-      config: null,
-      error: MakeError(`${fileConfig.path ? `'${fileConfig.path}'` : `#${index}`} configuration is invalid. ${valueErrorMapping[invalidValue]}`),
+      config: [],
+      error: `Configuration for ${originalPath ? `'${originalPath}'` : `#${index}`} is invalid. (compression values unspecified)`,
     };
+  }
+
+  const path = resolve(originalPath);
+  const config: Array<ItemConfig> = [];
+  for (const [configKey, configValue] of entries) {
+    const [compression, compressionError] = compressionValue(configKey);
+    const maxSize = bytes(configValue);
+    const invalidValue = [await isFile(path), compressionError === null, maxSize > 0].findIndex(item => item === false);
+    const valueErrorMapping = ['(path is not a valid file)', `(${compressionError})`, '(size unspecified)'];
+    if (invalidValue >= 0) {
+      return {
+        success: false,
+        config: null,
+        error: `Configuration for ${originalPath ? `'${originalPath}'` : `#${index}`} is invalid. ${valueErrorMapping[invalidValue]}`,
+      };
+    }
+
+    config.push({
+      originalPath,
+      path,
+      compression,
+      maxSize,
+    });
   }
 
   return {
     success: true,
-    config: {
-      originalPath: fileConfig.path,
-      path,
-      compression,
-      maxSize,
-    },
+    config,
     error: null,
   };
 }

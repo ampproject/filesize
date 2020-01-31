@@ -1,9 +1,7 @@
 {
-  "filesize": [
-    {
-      "path": "test/end-to-end/fixtures/missing-item/index.js",
-      "maxSize": "500 KB",
-      "compression": "none"
+  "filesize": {
+    "test/end-to-end/fixtures/missing-item/index.js": {
+      "none": "500 kB"
     }
-  ]
+  }
 }

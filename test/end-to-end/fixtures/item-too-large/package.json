@@ -1,9 +1,7 @@
 {
-  "filesize": [
-    {
-      "path": "test/end-to-end/fixtures/item-too-large/index.js",
-      "maxSize": "500 KB",
-      "compression": "none"
+  "filesize": {
+    "test/end-to-end/fixtures/item-too-large/index.js": {
+      "none": "500 kB"
     }
-  ]
+  }
 }

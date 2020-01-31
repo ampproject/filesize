@@ -35,12 +35,13 @@ const args = mri(process.argv.slice(2), {
     project,
     package: '',
     config: [],
+    track: [],
     silent: false,
   };
 
   for (const condition of conditions) {
-    const [success, message] = await condition(context)();
-    if (!success) {
+    const message = await condition(context)();
+    if (message !== null) {
       console.log(message);
       process.exit(5);
     }

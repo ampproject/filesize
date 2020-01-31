@@ -24,10 +24,10 @@ test('valid directory should pass', async t => {
     package: '',
     config: [],
     silent: false,
+    track: [],
   };
-  const [success, message] = await Project(context)();
+  const message = await Project(context)();
 
-  t.true(success);
   t.is(message, null);
 });
 
@@ -37,10 +37,10 @@ test('invalid directory should fail', async t => {
     package: '',
     config: [],
     silent: false,
+    track: [],
   };
-  const [success, message] = await Project(context)();
+  const message = await Project(context)();
 
-  t.false(success);
   t.is(message, `error project specified '${context.project}' doesn't exist, is this a valid project?`);
 });
 
@@ -50,9 +50,9 @@ test('directory missing package.json should fail', async t => {
     package: '',
     config: [],
     silent: false,
+    track: [],
   };
-  const [success, message] = await Project(context)();
+  const message = await Project(context)();
 
-  t.false(success);
   t.is(message, `error Missing '${resolve(context.project, 'package.json')}', is this a valid project?`);
 });

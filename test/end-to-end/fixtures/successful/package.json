@@ -1,19 +1,9 @@
 {
-  "filesize": [
-    {
-      "path": "test/end-to-end/fixtures/successful/index.js",
-      "maxSize": "10 KB",
-      "compression": "none"
-    },
-    {
-      "path": "test/end-to-end/fixtures/successful/index.js",
-      "maxSize": "4 KB",
-      "compression": "gzip"
-    },
-    {
-      "path": "test/end-to-end/fixtures/successful/index.js",
-      "maxSize": "3.5 KB",
-      "compression": "brotli"
+  "filesize": {
+    "test/end-to-end/fixtures/successful/index.js": {
+      "brotli": "3.5 kB",
+      "gzip": "4 kB",
+      "none": "10 kB"
     }
-  ]
+  }
 }

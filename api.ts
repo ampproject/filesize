@@ -25,12 +25,13 @@ export async function report(project: string): Promise<Map<ItemConfig['path'], C
     project,
     package: '',
     config: [],
+    track: [],
     silent: true,
   };
 
   for (const condition of conditions) {
-    const [success, message] = await condition(context)();
-    if (!success) {
+    const message = await condition(context)();
+    if (message !== null) {
       throw message;
     }
   }

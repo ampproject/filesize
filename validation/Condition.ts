@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-export type ValidationResponse = [boolean, string | null];
+export type ValidationResponse = string | null;
 
 export enum Compression {
   NONE = 'none',
@@ -38,6 +38,7 @@ export interface Context {
   project: string;
   package: string;
   config: Array<ItemConfig>;
+  track: Array<string>;
   silent: boolean;
 }
 

@@ -12,24 +12,21 @@ yarn add @ampproject/filesize --dev
 
 ## Usage
 
-Specify an array of files you'd like to check the size for inside the `filesize` key of `package.json`.
+Specify an object of files you'd like to check the size for inside the `filesize` key of `package.json`.
 
 ```json
 {
-  "filesize": [
-    {
-      "path": "./dist/index.js",
-      "compression": "brotli",
-      "maxSize": "11.4 kB"
+  "filesize": {
+    "./dist/index.js": {
+      "brotli": "11.4 kB"
     }
-  ]
+  }
 }
 ```
 
-Each file must include a the following keys:
-1. `path`, a resolvable path to the file.
-2. `compression`, the type of compression to use on the file (options: 'brotli', 'gzip', or 'none')
-3. `maxSize`, a string representation of the maxiumum size the file can be.
+Each file (key in the filesize object) must include an object with key/value pairs:
+1. The key is the `compression` type you would like to use on the file.
+2. The value is the string representation of the files maximum allowed size.
 
 **After completing configuration**, invoke `filesize` via: `yarn filesize`. 
 

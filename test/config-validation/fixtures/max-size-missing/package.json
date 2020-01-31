@@ -1,8 +1,7 @@
 {
-  "filesize": [
-    {
-      "path": "test/config-validation/fixtures/max-size-missing/index.js",
-      "compression": "none"
+  "filesize": {
+    "test/config-validation/fixtures/max-size-missing/index.js": {
+      "brotli": null
     }
-  ]
+  }
 }

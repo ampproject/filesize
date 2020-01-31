@@ -23,10 +23,10 @@ test('missing package.json should fail', async t => {
     config: [],
     project: 'test/config-validation/fixtures/missing-package-json',
     silent: false,
+    track: [],
   };
-  const [success, message] = await Config(context)();
+  const message = await Config(context)();
 
-  t.false(success);
   t.is(message, `error Could not read the configuration in '${context.package}'`);
 });
 
@@ -36,10 +36,10 @@ test('unparseable package.json should fail', async t => {
     config: [],
     project: 'test/config-validation/fixtures/unparseable-package-json',
     silent: false,
+    track: [],
   };
-  const [success, message] = await Config(context)();
+  const message = await Config(context)();
 
-  t.false(success);
   t.is(message, `error Could not parse '${context.package}'`);
 });
 
@@ -49,10 +49,10 @@ test("missing 'filesize' key from package.json should fail", async t => {
     config: [],
     project: 'test/config-validation/fixtures/missing-configuration',
     silent: false,
+    track: [],
   };
-  const [success, message] = await Config(context)();
+  const message = await Config(context)();
 
-  t.false(success);
   t.is(message, `error There is no 'filesize' configuration in '${context.package}'`);
 });
 
@@ -62,11 +62,11 @@ test("missing path from item in 'filesize' should fail", async t => {
     config: [],
     project: 'test/config-validation/fixtures/item-path-missing',
     silent: false,
+    track: [],
   };
-  const [success, message] = await Config(context)();
+  const message = await Config(context)();
 
-  t.false(success);
-  t.is(message, 'error Configuration for #1 is invalid. (key: path)');
+  t.is(message, `error There is no data inside the 'filesize' configuration in '${context.package}'`);
 });
 
 test("missing maxSize from item in 'filesize' should fail", async t => {
@@ -75,11 +75,11 @@ test("missing maxSize from item in 'filesize' should fail", async t => {
     config: [],
     project: 'test/config-validation/fixtures/max-size-missing',
     silent: false,
+    track: [],
   };
-  const [success, message] = await Config(context)();
+  const message = await Config(context)();
 
-  t.false(success);
-  t.is(message, `error Configuration for '${context.project}/index.js' is invalid. (key: maxSize)`);
+  t.is(message, `error Configuration for '${context.project}/index.js' is invalid. (size unspecified)`);
 });
 
 test("missing compression from item in 'filesize' should fail", async t => {
@@ -88,9 +88,9 @@ test("missing compression from item in 'filesize' should fail", async t => {
     config: [],
     project: 'test/config-validation/fixtures/compression-missing',
     silent: false,
+    track: [],
   };
-  const [success, message] = await Config(context)();
+  const message = await Config(context)();
 
-  t.false(success);
-  t.is(message, `error Configuration for '${context.project}/index.js' is invalid. (key: compression)`);
+  t.is(message, `error Configuration for '${context.project}/index.js' is invalid. (compression values unspecified)`);
 });

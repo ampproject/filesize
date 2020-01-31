@@ -43,6 +43,6 @@ test('item with missing file throws exception from API', async t => {
   try {
     await report(toReport);
   } catch (e) {
-    t.is(e, `error '${missingFile}' configuration is invalid. (path is not a valid file)`);
+    t.is(e, `error Configuration for '${missingFile}' is invalid. (path is not a valid file)`);
   }
 });

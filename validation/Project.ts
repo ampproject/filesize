@@ -21,23 +21,23 @@ import { MakeError } from '../log';
 
 /**
  * Ensure context contains a valid project directory and `package.json` inside.
- * @param context 
+ * @param context
  */
 const Project: ConditionFunction = (context: Context) => {
   return async function() {
     const projectPath: string = resolve(context.project);
     if (!(await isDirectory(projectPath))) {
-      return [false, MakeError(`project specified '${context.project}' doesn't exist, is this a valid project?`)];
+      return MakeError(`project specified '${context.project}' doesn't exist, is this a valid project?`);
     }
 
     const packagePath: string = resolve(context.project, 'package.json');
     if (!(await isFile(packagePath))) {
-      return [false, MakeError(`Missing '${packagePath}', is this a valid project?`)];
+      return MakeError(`Missing '${packagePath}', is this a valid project?`);
     }
 
     context.project = projectPath;
     context.package = packagePath;
-    return [true, null];
+    return null;
   };
 };
 
