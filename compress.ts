@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-import { Context, ItemConfig, Compression } from './validation/Condition';
+import { Context, ItemConfig, Compression, OrderedCompressionMap, CompressionMap } from './validation/Condition';
 import { cpus } from 'os';
-import bytes from 'bytes';
 import { constants as brotliConstants, brotliCompress, gzip, ZlibOptions } from 'zlib';
 import { readFile } from './fs';
-import { LogError, LogPassingOutput, LogFailingOutput } from './log';
+import { LogError, LogReport } from './log';
 
 const COMPRESSION_CONCURRENCY = cpus().length;
 const BROTLI_OPTIONS = {
@@ -32,6 +31,19 @@ const BROTLI_OPTIONS = {
 const GZIP_OPTIONS: ZlibOptions = {
   level: 9,
 };
+const reported: Map<ItemConfig['path'], CompressionMap> = new Map();
+
+/**
+ * Pre-populate the report map
+ * @param configurations
+ */
+function initReport(configurations: Context['config']) {
+  for (const config of configurations) {
+    if (!reported.get(config.originalPath)) {
+      reported.set(config.originalPath, new Map(OrderedCompressionMap));
+    }
+  }
+}
 
 /**
  * Use the given configuration and actual size to report item filesize.
@@ -39,19 +51,17 @@ const GZIP_OPTIONS: ZlibOptions = {
  * @param error Error from compressing an Item
  * @param size actual size for this comparison
  */
-function report(item: ItemConfig, error: Error | null, size: number): boolean {
+function store(item: ItemConfig, error: Error | null, size: number): boolean {
   if (error !== null) {
     LogError(`Could not compress '${item.path}' with '${item.compression}'.`);
     return false;
   }
 
-  if (item.maxSize >= size) {
-    LogPassingOutput(`${item.path} ${bytes(size)} <= ${bytes(item.maxSize)}`);
-    return true;
+  let compressionMap: CompressionMap | undefined;
+  if ((compressionMap = reported.get(item.originalPath))) {
+    compressionMap.set(item.compression, [size, item.maxSize]);
   }
-
-  LogFailingOutput(`${item.path} ${bytes(size)} > ${bytes(item.maxSize)}`);
-  return false;
+  return size < item.maxSize;
 }
 
 /**
@@ -66,15 +76,15 @@ async function compressor(item: ItemConfig): Promise<boolean> {
     switch (item.compression) {
       case Compression.BROTLI:
         return new Promise(resolve =>
-          brotliCompress(buffer, BROTLI_OPTIONS, (error: Error | null, result: Buffer) => resolve(report(item, error, result.byteLength))),
+          brotliCompress(buffer, BROTLI_OPTIONS, (error: Error | null, result: Buffer) => resolve(store(item, error, result.byteLength))),
         );
       case Compression.GZIP:
         return new Promise(resolve =>
-          gzip(buffer, GZIP_OPTIONS, (error: Error | null, result: Buffer) => resolve(report(item, error, result.byteLength))),
+          gzip(buffer, GZIP_OPTIONS, (error: Error | null, result: Buffer) => resolve(store(item, error, result.byteLength))),
         );
       case Compression.NONE:
       default:
-        return report(item, null, buffer.byteLength);
+        return store(item, null, buffer.byteLength);
     }
   }
 
@@ -86,6 +96,8 @@ async function compressor(item: ItemConfig): Promise<boolean> {
  * @param context Finalized Valid Context from Configuration
  */
 export default async function compress(context: Context): Promise<boolean> {
+  initReport(context.config);
+
   let success: boolean = true;
   for (let iterator: number = 0; iterator < context.config.length; iterator += COMPRESSION_CONCURRENCY) {
     let itemsSuccessful = await Promise.all(context.config.slice(iterator, iterator + COMPRESSION_CONCURRENCY).map(compressor));
@@ -94,5 +106,6 @@ export default async function compress(context: Context): Promise<boolean> {
     }
   }
 
+  LogReport(reported);
   return success;
 }

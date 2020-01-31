@@ -30,6 +30,7 @@
     "mri": "1.1.4"
   },
   "devDependencies": {
+    "@ampproject/rollup-plugin-closure-compiler": "0.20.0",
     "@rollup/plugin-commonjs": "11.0.1",
     "@rollup/plugin-node-resolve": "7.0.0",
     "@rollup/plugin-typescript": "2.1.0",
@@ -57,17 +58,22 @@
     {
       "path": "./dist/filesize",
       "compression": "brotli",
-      "maxSize": "4.5 kB"
+      "maxSize": "3.5 kB"
     },
     {
       "path": "./dist/filesize",
       "compression": "gzip",
-      "maxSize": "6 kB"
+      "maxSize": "3.6 kB"
     },
     {
       "path": "./dist/filesize",
       "compression": "none",
       "maxSize": "20 kB"
+    },
+    {
+      "path": "./dist/index.js",
+      "compression": "brotli",
+      "maxSize": "4 kB"
     }
   ],
   "ava": {

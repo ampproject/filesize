@@ -17,6 +17,7 @@
 import resolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
 import commonjs from '@rollup/plugin-commonjs';
+import compiler from '@ampproject/rollup-plugin-closure-compiler';
 import MagicString from 'magic-string';
 
 function makeExecutable() {
@@ -32,6 +33,15 @@ function makeExecutable() {
   };
 }
 
+const external = ['os', 'zlib', 'path', 'fs'];
+const plugins = executable => [
+  resolve({ preferBuiltins: true }),
+  commonjs({ include: 'node_modules/**' }),
+  typescript({ include: '**/*.ts' }),
+  compiler(),
+  executable ? makeExecutable() : null,
+];
+
 export default [
   {
     input: 'index.ts',
@@ -40,8 +50,8 @@ export default [
       format: 'cjs',
       sourcemap: true,
     },
-    external: ['os', 'zlib', 'path', 'fs'],
-    plugins: [resolve({ preferBuiltins: true }), commonjs({ include: 'node_modules/**' }), typescript({ include: '**/*.ts' }), makeExecutable()],
+    external,
+    plugins: plugins(true),
   },
   {
     input: 'index.ts',
@@ -50,7 +60,7 @@ export default [
       format: 'cjs',
       sourcemap: true,
     },
-    external: ['os', 'zlib', 'path', 'fs'],
-    plugins: [resolve({ preferBuiltins: true }), commonjs({ include: 'node_modules/**' }), typescript({ include: '**/*.ts' })],
+    external,
+    plugins: plugins(false),
   },
 ];

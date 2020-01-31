@@ -24,7 +24,7 @@ const READABLE_KEY_NAMES = ['path', 'compression', 'maxSize'];
 
 /**
  * Format input string to a known Compression Enum Value.
- * @param fsValue 
+ * @param fsValue
  */
 function compressionValue(fsValue: string): { compression: Compression; error: string | null } {
   switch (fsValue.toLowerCase()) {
@@ -42,7 +42,7 @@ function compressionValue(fsValue: string): { compression: Compression; error: s
 
 /**
  * Ensure a File config entry contains all the necessary keys.
- * @param bundle 
+ * @param bundle
  */
 export function FileConfigContainsKeys(fileConfig: { [key: string]: string }): { success: boolean; invalid: number | null } {
   const mandatoryValues = READABLE_KEY_NAMES.map(key => fileConfig[key]);
@@ -53,8 +53,8 @@ export function FileConfigContainsKeys(fileConfig: { [key: string]: string }): {
 
 /**
  * Validate a File config contains necessary keys and valid values.
- * @param fileConfig 
- * @param index 
+ * @param fileConfig
+ * @param index
  */
 export default async function ValidateFileConfig(
   fileConfig: { path: string; compression: string; maxSize: string },
@@ -71,13 +71,14 @@ export default async function ValidateFileConfig(
     return {
       success: false,
       config: null,
-      error:
-        MakeError(`${fileConfig.path ? `'${fileConfig.path}'` : `#${index}`} configuration is invalid. ${valueErrorMapping[invalidValue]}`),    };
+      error: MakeError(`${fileConfig.path ? `'${fileConfig.path}'` : `#${index}`} configuration is invalid. ${valueErrorMapping[invalidValue]}`),
+    };
   }
 
   return {
     success: true,
     config: {
+      originalPath: fileConfig.path,
       path,
       compression,
       maxSize,

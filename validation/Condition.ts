@@ -17,12 +17,19 @@
 export type ValidationResponse = [boolean, string | null];
 
 export enum Compression {
-  NONE = '',
+  NONE = 'none',
   GZIP = 'gzip',
   BROTLI = 'brotli',
 }
+const OrderedCompressionValues = [Compression.BROTLI, Compression.GZIP, Compression.NONE];
+
+export type CompressionMapValue = [number | null, number | null];
+export type CompressionMap = Map<string, CompressionMapValue>;
+export const OrderedCompressionMap: CompressionMap = new Map(OrderedCompressionValues.map(value => [value, [null, null]]));
+export const CompressionDisplayLength = OrderedCompressionValues.sort((a, b) => b.length - a.length)[0].length;
 
 export interface ItemConfig {
+  originalPath: string;
   path: string;
   compression: string;
   maxSize: number;
