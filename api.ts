@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 The AMP HTML Authors. All Rights Reserved.
+ * Copyright 2020 The AMP HTML Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,40 +14,27 @@
  * limitations under the License.
  */
 
-import mri from 'mri';
 import Project from './validation/Project';
 import Config from './validation/Config';
-import { Context } from './validation/Condition';
+import { Context, ItemConfig, CompressionMap } from './validation/Condition';
 import compress from './compress';
 
-const args = mri(process.argv.slice(2), {
-  alias: { p: 'project' },
-  default: { project: process.cwd() },
-});
-
-/**
- * Read the configuration from the specified project, validate it, perform requested compression, and report the results.
- */
-(async function() {
-  const { project } = args;
+export async function report(project: string): Promise<Map<ItemConfig['path'], CompressionMap>> {
   const conditions = [Project, Config];
   let context: Context = {
     project,
     package: '',
     config: [],
-    silent: false,
+    silent: true,
   };
 
   for (const condition of conditions) {
     const [success, message] = await condition(context)();
     if (!success) {
-      console.log(message);
-      process.exit(5);
+      throw message;
     }
   }
 
-  const [compressionSuccess] = await compress(context);
-  if (!compressionSuccess) {
-    process.exit(6);
-  }
-})();
+  const { 1: report } = await compress(context);
+  return report;
+}

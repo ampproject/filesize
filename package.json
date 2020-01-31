@@ -5,6 +5,7 @@
   "author": "Kristofer Baxter",
   "license": "Apache-2.0",
   "main": "dist/filesize",
+  "module": "dist/api.mjs",
   "files": [
     "dist"
   ],
@@ -73,7 +74,7 @@
     {
       "path": "./dist/index.js",
       "compression": "brotli",
-      "maxSize": "4 kB"
+      "maxSize": "10 kB"
     }
   ],
   "ava": {

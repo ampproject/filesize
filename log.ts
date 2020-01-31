@@ -15,8 +15,8 @@
  */
 
 const kleur = require('kleur');
-import bytes from 'bytes';
-import { ItemConfig, CompressionMap } from './validation/Condition';
+const bytes = require('bytes');
+import { ItemConfig, CompressionMap, Context } from './validation/Condition';
 
 // Disable output colors for test runs.
 kleur.enabled = !('AVA_PATH' in process.env);
@@ -63,11 +63,11 @@ function compressedExtension(compression: string): string {
  * Display report to the console.
  * @param report
  */
-export function LogReport(report: Map<ItemConfig['path'], CompressionMap>) {
+export function LogReport({ silent }: Context, report: Map<ItemConfig['path'], CompressionMap>) {
   let success: number = 0;
   let failure: number = 0;
 
-  if ([...report.keys()].length > 0) {
+  if (!silent && [...report.keys()].length > 0) {
     console.log(bold('\nFilesize Report'));
     for (const [originalPath, values] of report) {
       console.log(grey(`\npath: ${originalPath}`));
@@ -86,11 +86,12 @@ export function LogReport(report: Map<ItemConfig['path'], CompressionMap>) {
       }
     }
     if (success > 0 || failure > 0) {
-      console.log('\n  ' + green(success + ` ${success === 1 ? 'check' : 'checks'} passed`));
-      console.log('  ' + red(failure + ` ${failure === 1 ? 'check' : 'checks'} failed`) + (failure === 0 ? ' 🎉' : ''));
+      console.log('\n  ' + green(success + ` ${success === 1 ? 'check' : 'checks'} passed`) + (failure === 0 ? ' 🎉' : ''));
+      const failureColor = failure < 1 ? grey : red;
+      console.log('  ' + failureColor(failure + ` ${failure === 1 ? 'check' : 'checks'} failed`));
     }
     console.log();
-  } else {
+  } else if (!silent) {
     MakeError('No report available.');
   }
 }

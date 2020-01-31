@@ -38,6 +38,7 @@ export interface Context {
   project: string;
   package: string;
   config: Array<ItemConfig>;
+  silent: boolean;
 }
 
 export type ConditionFunction = (context: Context) => () => Promise<ValidationResponse>;

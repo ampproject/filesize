@@ -16,13 +16,14 @@
 
 import test from 'ava';
 import Project from '../../validation/Project';
-import {resolve} from 'path';
+import { resolve } from 'path';
 
 test('valid directory should pass', async t => {
   const context = {
     project: 'test/project-validation/fixtures/contains-package-json',
     package: '',
     config: [],
+    silent: false,
   };
   const [success, message] = await Project(context)();
 
@@ -35,6 +36,7 @@ test('invalid directory should fail', async t => {
     project: 'test/project-validation/fixtures-invalid',
     package: '',
     config: [],
+    silent: false,
   };
   const [success, message] = await Project(context)();
 
@@ -47,9 +49,10 @@ test('directory missing package.json should fail', async t => {
     project: 'test/project-validation/fixtures/missing-package-json',
     package: '',
     config: [],
+    silent: false,
   };
   const [success, message] = await Project(context)();
-  
+
   t.false(success);
-  t.is(message, `error Missing '${resolve(context.project, 'package.json')}', is this a valid project?`)
+  t.is(message, `error Missing '${resolve(context.project, 'package.json')}', is this a valid project?`);
 });

@@ -22,6 +22,7 @@ test('missing package.json should fail', async t => {
     package: 'test/config-validation/fixtures/missing-package-json/package.json',
     config: [],
     project: 'test/config-validation/fixtures/missing-package-json',
+    silent: false,
   };
   const [success, message] = await Config(context)();
 
@@ -34,6 +35,7 @@ test('unparseable package.json should fail', async t => {
     package: 'test/config-validation/fixtures/unparseable-package-json/package.json',
     config: [],
     project: 'test/config-validation/fixtures/unparseable-package-json',
+    silent: false,
   };
   const [success, message] = await Config(context)();
 
@@ -46,6 +48,7 @@ test("missing 'filesize' key from package.json should fail", async t => {
     package: 'test/config-validation/fixtures/missing-configuration/package.json',
     config: [],
     project: 'test/config-validation/fixtures/missing-configuration',
+    silent: false,
   };
   const [success, message] = await Config(context)();
 
@@ -58,6 +61,7 @@ test("missing path from item in 'filesize' should fail", async t => {
     package: 'test/config-validation/fixtures/item-path-missing/package.json',
     config: [],
     project: 'test/config-validation/fixtures/item-path-missing',
+    silent: false,
   };
   const [success, message] = await Config(context)();
 
@@ -70,6 +74,7 @@ test("missing maxSize from item in 'filesize' should fail", async t => {
     package: 'test/config-validation/fixtures/max-size-missing/package.json',
     config: [],
     project: 'test/config-validation/fixtures/max-size-missing',
+    silent: false,
   };
   const [success, message] = await Config(context)();
 
@@ -82,6 +87,7 @@ test("missing compression from item in 'filesize' should fail", async t => {
     package: 'test/config-validation/fixtures/compression-missing/package.json',
     config: [],
     project: 'test/config-validation/fixtures/compression-missing',
+    silent: false,
   };
   const [success, message] = await Config(context)();
 

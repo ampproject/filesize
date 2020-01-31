@@ -95,7 +95,7 @@ async function compressor(item: ItemConfig): Promise<boolean> {
  * Given a context, compress all Items within splitting work eagly per cpu core to achieve some concurrency.
  * @param context Finalized Valid Context from Configuration
  */
-export default async function compress(context: Context): Promise<boolean> {
+export default async function compress(context: Context): Promise<[boolean, Map<ItemConfig['path'], CompressionMap>]> {
   initReport(context.config);
 
   let success: boolean = true;
@@ -106,6 +106,6 @@ export default async function compress(context: Context): Promise<boolean> {
     }
   }
 
-  LogReport(reported);
-  return success;
+  LogReport(context, reported);
+  return [success, reported];
 }

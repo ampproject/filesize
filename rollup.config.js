@@ -37,8 +37,8 @@ const external = ['os', 'zlib', 'path', 'fs'];
 const plugins = executable => [
   resolve({ preferBuiltins: true }),
   commonjs({ include: 'node_modules/**' }),
-  typescript({ include: '**/*.ts' }),
-  compiler(),
+  typescript({ include: '**/*.ts', exclude: 'dist/**/*.ts' }),
+  executable ? compiler() : null,
   executable ? makeExecutable() : null,
 ];
 
@@ -63,4 +63,14 @@ export default [
     external,
     plugins: plugins(false),
   },
+  {
+    input: 'api.ts',
+    output: {
+      file: 'dist/api.mjs',
+      format: 'esm',
+      sourcemap: true,
+    },
+    external,
+    plugins: plugins(false),
+  }
 ];

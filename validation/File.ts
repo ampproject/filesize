@@ -17,7 +17,7 @@
 import { ItemConfig, Compression } from './Condition';
 import { isFile } from '../fs';
 import { resolve } from 'path';
-import bytes from 'bytes';
+const bytes = require('bytes');
 import { MakeError } from '../log';
 
 const READABLE_KEY_NAMES = ['path', 'compression', 'maxSize'];

@@ -21,8 +21,8 @@ import { MakeError } from '../log';
 
 const READABLE_KEY_NAMES = ['path', 'compression', 'maxSize'];
 
-const Config: ConditionFunction = (context: Context) => {
-  return async function() {
+const Config: ConditionFunction = (context: Context) =>
+  async function() {
     let contents: string = '';
 
     const readFileAttempt: string | null = await readFile(context.package);
@@ -53,11 +53,11 @@ const Config: ConditionFunction = (context: Context) => {
               return [false, validatedItem.error];
             }
           } else {
-            const message =
-              MakeError(`Configuration for ${file.path ? `'${file.path}'` : `#${index}`} is invalid. (key: ${
-                  READABLE_KEY_NAMES[hasNecessaryKeys.invalid as number]
-                })`,
-              );
+            const message = MakeError(
+              `Configuration for ${file.path ? `'${file.path}'` : `#${index}`} is invalid. (key: ${
+                READABLE_KEY_NAMES[hasNecessaryKeys.invalid as number]
+              })`,
+            );
             return [false, message];
           }
         }
@@ -68,6 +68,5 @@ const Config: ConditionFunction = (context: Context) => {
       return [false, MakeError(`Could not parse '${context.package}'`)];
     }
   };
-};
 
 export default Config;
