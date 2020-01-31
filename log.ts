@@ -70,18 +70,40 @@ export function LogReport({ silent }: Context, report: Map<ItemConfig['path'], C
   if (!silent && [...report.keys()].length > 0) {
     console.log(bold('\nFilesize Report'));
     for (const [originalPath, values] of report) {
-      console.log(grey(`\npath: ${originalPath}`));
-      for (const [compression, compressionResults] of values) {
-        const [size, maxSize] = compressionResults;
-        const compressedPath = originalPath + grey(compressedExtension(compression));
-        if (size === null || maxSize === null) {
-          continue;
-        } else if (size < maxSize) {
-          success++;
-          console.log(`  ✔️  ${compressedPath} ${prettyBytes(size)} ${green('<')} ${prettyBytes(maxSize)}`);
-        } else {
-          failure++;
-          console.log(`  ❌ ${compressedPath} ${prettyBytes(size)} ${red('>')} ${prettyBytes(maxSize)}`);
+      const multipleOutputs = Array.from(values.values()).filter(([before]) => before !== null).length > 1;
+      if (multipleOutputs) {
+        console.log(grey(`\npath: ${originalPath}`));
+        for (const [compression, compressionResults] of values) {
+          const [size, maxSize] = compressionResults;
+          const compressedPath = originalPath + grey(compressedExtension(compression));
+          if (size === null || maxSize === null) {
+            continue;
+          } else if (size < maxSize) {
+            success++;
+            console.log(`  ✔️  ${compressedPath} ${prettyBytes(size)} ${green('<')} ${prettyBytes(maxSize)}`);
+          } else {
+            failure++;
+            console.log(`  ❌ ${compressedPath} ${prettyBytes(size)} ${red('>')} ${prettyBytes(maxSize)}`);
+          }
+        }
+      } else {
+        const maximumPath =
+          Math.max.apply(
+            null,
+            Array.from(report.keys()).map(item => item.length),
+          ) + 1;
+        for (const [compression, compressionResults] of values) {
+          const [size, maxSize] = compressionResults;
+          const compressedPath = originalPath + grey(compressedExtension(compression)) + new Array(maximumPath - originalPath.length).join(' ');
+          if (size === null || maxSize === null) {
+            continue;
+          } else if (size < maxSize) {
+            success++;
+            console.log(`  ✔️  ${compressedPath} ${prettyBytes(size)} ${green('<')} ${prettyBytes(maxSize)}`);
+          } else {
+            failure++;
+            console.log(`  ❌ ${compressedPath} ${prettyBytes(size)} ${red('>')} ${prettyBytes(maxSize)}`);
+          }
         }
       }
     }
