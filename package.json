@@ -1,6 +1,6 @@
 {
   "name": "@ampproject/filesize",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Audit the filesize of items specified in package.json.",
   "author": "Kristofer Baxter",
   "license": "Apache-2.0",
