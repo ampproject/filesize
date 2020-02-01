@@ -24,6 +24,11 @@ kleur.enabled = !('AVA_PATH' in process.env);
 // Aliases to colors used.
 // @ts-ignore
 const { red, grey, yellow, green, bold, dim } = kleur;
+const ICONS = {
+  tick: ['✔', '√'],
+  cross: ['✖', '×'],
+  tada: ['🎉', '🎉'],
+};
 
 /**
  * Format output as an error message.
@@ -47,6 +52,18 @@ export function LogError(output: string): void {
  */
 function prettyBytes(size: number): string {
   return bytes(size, { unit: 'kb', fixedDecimals: true, unitSeparator: ' ' });
+}
+
+/**
+ * Retrieve an icon appropriate for your OS.
+ * @param name
+ */
+function getIcon(name: 'tick' | 'cross' | 'tada') {
+  if (process.platform === 'win32') {
+    return ICONS[name][1];
+  }
+
+  return ICONS[name][0];
 }
 
 /**
@@ -108,24 +125,26 @@ export function LogReport({ silent }: Context, report: Map<ItemConfig['path'], C
   }
 
   const paths = Array.from(report.keys());
+  const maxDisplayablePath = 30;
   const pathMaxLength = Math.max.apply(
     null,
-    paths.map(path => path.length + 2),
+    paths.map(path => Math.min(path.length, maxDisplayablePath) + 2),
   );
   const formatMaxLengths = OrderedCompressionValues.map(compression => maxLengthForCompression(report, paths, compression));
   const compressionHeaders = OrderedCompressionValues.map((compression, index) => compressedExtension(compression, formatMaxLengths[index]));
   let success: number = 0;
   let failure: number = 0;
 
-  console.log(bold('\nFilesizes'));
-  console.log(''.padEnd(pathMaxLength) + ' ' + compressionHeaders.join(''));
+  console.log(bold('\n  Filesizes'));
+  console.log(''.padEnd(pathMaxLength + 4) + ' ' + compressionHeaders.join(''));
   for (const path of paths) {
     const compressionMap = report.get(path);
     if (!compressionMap) {
       continue;
     }
 
-    let message = path.padEnd(pathMaxLength) + ' ';
+    let includesFailure = false;
+    let message = ' ' + path.substring(path.length - maxDisplayablePath).padEnd(pathMaxLength) + ' ';
     let compressionIndex = 0;
     for (const compression of OrderedCompressionValues) {
       const padding = compressionHeaders[compressionIndex].length;
@@ -136,16 +155,23 @@ export function LogReport({ silent }: Context, report: Map<ItemConfig['path'], C
         success++;
       } else if (successful !== null) {
         failure++;
+        includesFailure = true;
       }
       message += compressionMessage;
       compressionIndex++;
     }
+    if (includesFailure) {
+      message = '  ' + red(getIcon('cross')) + message;
+    } else {
+      message = '  ' + dim().green(getIcon('tick')) + message;
+    }
     console.log(message);
   }
   if (success > 0 || failure > 0) {
-    console.log('\n  ' + green(success + ` ${success === 1 ? 'check' : 'checks'} passed`) + (failure === 0 ? ' 🎉' : ''));
-    const failureColor = failure < 1 ? grey : red;
-    console.log('  ' + failureColor(failure + ` ${failure === 1 ? 'check' : 'checks'} failed`));
+    console.log('\n  ' + green(success + ` ${success === 1 ? 'check' : 'checks'} passed`) + (failure === 0 ? ` ${getIcon('tada')}` : ''));
+    if (failure > 0) {
+      console.log('  ' + red(failure + ` ${failure === 1 ? 'check' : 'checks'} failed`));
+    }
   }
   console.log();
 }
