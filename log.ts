@@ -72,16 +72,16 @@ function getIcon(name: 'tick' | 'cross' | 'tada') {
  * @param maxSize
  * @param maxWidth
  */
-function displaySize(size: number | null, maxSize: number | null, maxWidth: number): [boolean | null, string] {
+function displaySize(size: number | null, maxSize: number | null, maxWidth: number): ['success' | 'warning' | 'failure' | null, string] {
   if (size === null || maxSize === null) {
     return [null, dim().grey('–'.padEnd(maxWidth))];
   } else if (size < maxSize) {
     if (1 - size / maxSize < 0.05) {
-      return [true, yellow(prettyBytes(size).padEnd(maxWidth))];
+      return ['warning', yellow(prettyBytes(size).padEnd(maxWidth))];
     }
-    return [true, dim().green(prettyBytes(size).padEnd(maxWidth))];
+    return ['success', dim().green(prettyBytes(size).padEnd(maxWidth))];
   } else {
-    return [false, red(prettyBytes(size).padEnd(maxWidth))];
+    return ['failure', red(prettyBytes(size).padEnd(maxWidth))];
   }
 }
 
@@ -134,6 +134,7 @@ export function LogReport({ silent }: Context, report: Map<ItemConfig['path'], C
   const compressionHeaders = OrderedCompressionValues.map((compression, index) => compressedExtension(compression, formatMaxLengths[index]));
   let success: number = 0;
   let failure: number = 0;
+  let warning: number = 0;
 
   console.log(bold('\n  Filesizes'));
   console.log(''.padEnd(pathMaxLength + 4) + ' ' + compressionHeaders.join(''));
@@ -150,12 +151,18 @@ export function LogReport({ silent }: Context, report: Map<ItemConfig['path'], C
       const padding = compressionHeaders[compressionIndex].length;
       const [size, maxSize] = compressionMap.get(compression) as [number | null, number | null];
 
-      const [successful, compressionMessage] = displaySize(size, maxSize, padding);
-      if (successful) {
-        success++;
-      } else if (successful !== null) {
-        failure++;
-        includesFailure = true;
+      const [status, compressionMessage] = displaySize(size, maxSize, padding);
+      switch (status) {
+        case 'success':
+          success++;
+          break;
+        case 'failure':
+          failure++;
+          includesFailure = true;
+          break;
+        case 'warning':
+          warning++;
+          break;
       }
       message += compressionMessage;
       compressionIndex++;
@@ -169,6 +176,9 @@ export function LogReport({ silent }: Context, report: Map<ItemConfig['path'], C
   }
   if (success > 0 || failure > 0) {
     console.log('\n  ' + green(success + ` ${success === 1 ? 'check' : 'checks'} passed`) + (failure === 0 ? ` ${getIcon('tada')}` : ''));
+    if (warning > 0) {
+      console.log('  ' + yellow(warning + ` ${warning === 1 ? 'check' : 'checks'} warned`) + grey(' (within 5% of allowed size)'));
+    }
     if (failure > 0) {
       console.log('  ' + red(failure + ` ${failure === 1 ? 'check' : 'checks'} failed`));
     }

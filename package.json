@@ -59,11 +59,12 @@
   "filesize": {
     "./dist/filesize": {
       "brotli": "3 kB",
-      "gzip": "3.6 kB",
+      "gzip": "3.8 kB",
       "none": "20 kB"
     },
     "./dist/index.js": {
-      "brotli": "10 kB"
+      "brotli": "5 kB",
+      "gzip": "6.5 kB"
     },
     "./dist/api.mjs": {
       "gzip": "10 kB"
