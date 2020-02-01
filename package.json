@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "0.20.0",
-    "@rollup/plugin-commonjs": "11.0.1",
+    "@rollup/plugin-commonjs": "11.0.2",
     "@rollup/plugin-node-resolve": "7.0.0",
     "@rollup/plugin-typescript": "3.0.0",
     "@types/bytes": "3.1.0",
