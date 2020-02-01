@@ -21,7 +21,7 @@ export enum Compression {
   GZIP = 'gzip',
   BROTLI = 'brotli',
 }
-const OrderedCompressionValues = [Compression.BROTLI, Compression.GZIP, Compression.NONE];
+export const OrderedCompressionValues = [Compression.BROTLI, Compression.GZIP, Compression.NONE];
 
 export type CompressionMapValue = [number | null, number | null];
 export type CompressionMap = Map<string, CompressionMapValue>;

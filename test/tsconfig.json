@@ -7,7 +7,7 @@
     "outDir": "output",
     "sourceMap": true,
     "moduleResolution": "node",
-    "target": "esnext",
+    "target": "ES2019",
     "module": "commonjs",
     "allowJs": false,
     "noUnusedLocals": true,
