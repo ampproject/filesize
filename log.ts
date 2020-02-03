@@ -92,7 +92,7 @@ function displaySize(size: number | null, maxSize: number | null, maxWidth: numb
  * @param compression
  */
 function maxLengthForCompression(report: Map<ItemConfig['path'], CompressionMap>, paths: Array<string>, compression: string): number {
-  const reportedValueStrings: Array<number> = [];
+  const reportedValueStrings: Array<number> = [compression.length];
 
   for (const path of paths) {
     const value = report.get(path)?.get(compression);
