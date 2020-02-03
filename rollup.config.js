@@ -37,7 +37,7 @@ const external = ['os', 'zlib', 'path', 'fs', 'stream', 'util', 'events', 'fast-
 const plugins = executable => [
   resolve({ preferBuiltins: true }),
   commonjs({ include: 'node_modules/**' }),
-  typescript({ include: '**/*.ts', exclude: 'dist/**/*.ts' }),
+  typescript({ tsconfig: 'src/tsconfig.json', include: '**/*.ts', exclude: 'dist/**/*.ts' }),
   executable ? compiler() : null,
   executable ? makeExecutable() : null,
 ];
@@ -72,5 +72,5 @@ export default [
     },
     external,
     plugins: plugins(false),
-  }
+  },
 ];
