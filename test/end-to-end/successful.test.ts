@@ -16,8 +16,8 @@
 
 import test from 'ava';
 import { exec } from 'child_process';
-import { report } from '../../api';
-import { CompressionMap } from '../../validation/Condition';
+import { report } from '../../src/api';
+import { CompressionMap } from '../../src/validation/Condition';
 
 test.cb('item under requested filesize limit passes', t => {
   const executeFailure = exec('./dist/filesize -p=test/end-to-end/fixtures/successful');

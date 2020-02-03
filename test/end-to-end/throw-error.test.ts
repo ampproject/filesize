@@ -15,7 +15,7 @@
  */
 
 import test from 'ava';
-import { report } from '../../api';
+import { report } from '../../src/api';
 import { exec } from 'child_process';
 
 test.cb('item with missing file fails with exit code 5', t => {

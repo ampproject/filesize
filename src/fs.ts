@@ -18,7 +18,7 @@ import { promises as fs } from 'fs';
 
 /**
  * Returns if a path is a directory.
- * @param path 
+ * @param path
  */
 export async function isDirectory(path: string): Promise<boolean> {
   try {
@@ -29,7 +29,7 @@ export async function isDirectory(path: string): Promise<boolean> {
 
 /**
  * Returns if a path is a file.
- * @param path 
+ * @param path
  */
 export async function isFile(path: string): Promise<boolean> {
   try {
@@ -40,7 +40,7 @@ export async function isFile(path: string): Promise<boolean> {
 
 /**
  * Returns contents of a path as a string
- * @param path 
+ * @param path
  */
 export async function readFile(path: string): Promise<string | null> {
   try {

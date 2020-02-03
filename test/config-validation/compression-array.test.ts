@@ -15,18 +15,17 @@
  */
 
 import test from 'ava';
-// import Config from '../../validation-original/Config';
+import Config from '../../src/validation/Config';
 
 test('missing package.json should fail', async t => {
-  // const context = {
-  //   package: 'test/config-validation/fixtures/compression-array/package.json',
-  //   config: [],
-  //   project: 'test/config-validation/fixtures/compression-array',
-  //   silent: false,
-  // };
-  // const [success, message] = await Config(context)();
+  const context = {
+    package: 'test/config-validation/fixtures/compression-array/package.json',
+    config: [],
+    project: 'test/config-validation/fixtures/compression-array',
+    silent: false,
+    track: [],
+  };
+  const message = await Config(context)();
 
-  // t.true(success);
-  // t.is(message, null);
-  t.pass();
+  t.is(message, null);
 });

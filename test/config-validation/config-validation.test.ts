@@ -15,7 +15,7 @@
  */
 
 import test from 'ava';
-import Config from '../../validation/Config';
+import Config from '../../src/validation/Config';
 
 test('missing package.json should fail', async t => {
   const context = {

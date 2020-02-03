@@ -15,7 +15,7 @@
  */
 
 import test from 'ava';
-import Project from '../../validation/Project';
+import Project from '../../src/validation/Project';
 import { resolve } from 'path';
 
 test('valid directory should pass', async t => {

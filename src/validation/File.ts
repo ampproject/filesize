@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Compression, ItemConfig } from '../validation/Condition';
+import { Compression, ItemConfig } from './Condition';
 import { resolve } from 'path';
 import { isFile } from '../fs';
 const bytes = require('bytes');

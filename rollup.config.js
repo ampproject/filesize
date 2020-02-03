@@ -44,7 +44,7 @@ const plugins = executable => [
 
 export default [
   {
-    input: 'index.ts',
+    input: 'src/index.ts',
     output: {
       file: 'dist/filesize',
       format: 'cjs',
@@ -54,7 +54,7 @@ export default [
     plugins: plugins(true),
   },
   {
-    input: 'index.ts',
+    input: 'src/index.ts',
     output: {
       file: 'dist/index.js',
       format: 'cjs',
@@ -64,7 +64,7 @@ export default [
     plugins: plugins(false),
   },
   {
-    input: 'api.ts',
+    input: 'src/api.ts',
     output: {
       file: 'dist/api.mjs',
       format: 'esm',

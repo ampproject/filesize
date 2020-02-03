@@ -19,7 +19,7 @@
   "scripts": {
     "pretest": "tsc -p test/tsconfig.json",
     "test": "ava -v",
-    "clean": "rimraf dist",
+    "clean": "rimraf dist output test/output",
     "build": "rollup -c; shx chmod a+x dist/filesize",
     "try": "./dist/filesize",
     "release": "np",

@@ -17,7 +17,7 @@
 import { ConditionFunction, Context } from './Condition';
 import { isDirectory, isFile } from '../fs';
 import { resolve } from 'path';
-import { MakeError } from '../../log';
+import { MakeError } from '../log';
 
 /**
  * Ensure context contains a valid project directory and `package.json` inside.
