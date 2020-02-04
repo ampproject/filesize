@@ -44,7 +44,7 @@ interface CompressionItem {
  * @param error Error from compressing an Item
  * @param size actual size for this comparison
  */
-function store(context: Context, item: CompressionItem, error: Error | null, size: number): boolean {
+function store(report: Report, context: Context, item: CompressionItem, error: Error | null, size: number): boolean {
   if (error !== null) {
     LogError(`Could not compress '${item.path}' with '${item.compression}'.`);
     return false;
@@ -58,6 +58,7 @@ function store(context: Context, item: CompressionItem, error: Error | null, siz
   }
   sizeMap[OrderedCompressionValues.indexOf(item.compression)][0] = size;
 
+  report.update(context);
   if (item.maxSize === undefined) {
     return true;
   }
@@ -83,14 +84,16 @@ export default async function compress(context: Context): Promise<boolean> {
       switch (item.compression) {
         case 'brotli':
           return new Promise(resolve =>
-            brotliCompress(buffer, BROTLI_OPTIONS, (error: Error | null, result: Buffer) => resolve(store(context, item, error, result.byteLength))),
+            brotliCompress(buffer, BROTLI_OPTIONS, (error: Error | null, result: Buffer) =>
+              resolve(store(report, context, item, error, result.byteLength)),
+            ),
           );
         case 'gzip':
           return new Promise(resolve =>
-            gzip(buffer, GZIP_OPTIONS, (error: Error | null, result: Buffer) => resolve(store(context, item, error, result.byteLength))),
+            gzip(buffer, GZIP_OPTIONS, (error: Error | null, result: Buffer) => resolve(store(report, context, item, error, result.byteLength))),
           );
         default:
-          return store(context, item, null, buffer.byteLength);
+          return store(report, context, item, null, buffer.byteLength);
       }
     }
 
@@ -117,7 +120,6 @@ export default async function compress(context: Context): Promise<boolean> {
       report.update(context);
     }
     let itemsSuccessful = await Promise.all(toCompress.slice(iterator, iterator + COMPRESSION_CONCURRENCY).map(compressor));
-    report.update(context);
     if (itemsSuccessful.includes(false)) {
       success = false;
     }
