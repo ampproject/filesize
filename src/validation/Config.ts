@@ -68,11 +68,11 @@ const CONDITIONS = [
       }
 
       const { track, ...keys } = json;
-      if (Object.entries(keys).length === 0) {
+      if (Object.entries(keys).length === 0 && track === undefined) {
         return `There is no data inside the 'filesize' configuration in '${context.packagePath}'`;
       }
 
-      if (!isObject(keys)) {
+      if (!isObject(keys) && track === undefined) {
         return (
           `'filesize' configuration is not an object in '${context.packagePath}'` +
           '(See https://github.com/ampproject/filesize/#usage for details on the structure of the filesize object).'

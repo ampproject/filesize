@@ -36,6 +36,7 @@ export async function Track(context: Context, json: any): Promise<ValidationResp
         [null, undefined],
         [null, undefined],
       ]);
+      context.originalPaths.set(path, entry);
     }
   }
 

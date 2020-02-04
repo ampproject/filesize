@@ -99,12 +99,13 @@ export default async function compress(context: Context): Promise<boolean> {
 
   const toCompress: Array<CompressionItem> = [];
   for (const [path, sizeMapValue] of context.compressed) {
-    for (let iterator: number = 0; iterator <= OrderedCompressionValues.length; iterator++) {
-      if (sizeMapValue[iterator] !== undefined) {
+    for (let iterator: number = 0; iterator < OrderedCompressionValues.length; iterator++) {
+      const [size, maxSize] = sizeMapValue[iterator];
+      if (size !== undefined) {
         toCompress.push({
           path,
           compression: OrderedCompressionValues[iterator] as Compression,
-          maxSize: sizeMapValue[iterator][1],
+          maxSize,
         });
       }
     }
@@ -112,6 +113,9 @@ export default async function compress(context: Context): Promise<boolean> {
 
   let success: boolean = true;
   for (let iterator: number = 0; iterator < toCompress.length; iterator += COMPRESSION_CONCURRENCY) {
+    if (iterator === 0) {
+      report.update(context);
+    }
     let itemsSuccessful = await Promise.all(toCompress.slice(iterator, iterator + COMPRESSION_CONCURRENCY).map(compressor));
     report.update(context);
     if (itemsSuccessful.includes(false)) {

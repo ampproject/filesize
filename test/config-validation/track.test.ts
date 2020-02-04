@@ -15,14 +15,17 @@
  */
 
 import test from 'ava';
+import { resolve } from 'path';
+import { report } from '../../src/api';
 import Config from '../../src/validation/Config';
-import { Context } from '../../src/validation/Condition';
+import { Context, SizeMapValue, SizeMap } from '../../src/validation/Condition';
 
 test('including trackable items should succeed', async t => {
   const context: Context = {
     packagePath: 'test/config-validation/fixtures/track/package.json',
     projectPath: 'test/config-validation/fixtures/track',
     packageContent: '',
+    originalPaths: new Map(),
     compressed: new Map(),
     comparison: new Map(),
     silent: false,
@@ -30,4 +33,17 @@ test('including trackable items should succeed', async t => {
   const message = await Config(context)();
 
   t.is(message, null);
+});
+
+test('trackable items uses glob to find files', async t => {
+  const sizes: SizeMapValue = [
+    [null, undefined], // brotli
+    [null, undefined], // gzip
+    [null, undefined], // none
+  ];
+  const expected: SizeMap = new Map();
+  expected.set(resolve('test/config-validation/fixtures/track-standalone/index.js'), sizes);
+
+  const results = await report('test/config-validation/fixtures/track-standalone');
+  t.deepEqual(results[0], expected);
 });

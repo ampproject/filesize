@@ -17,6 +17,7 @@
 const kleur = require('kleur');
 const bytes = require('bytes');
 import { Context, OrderedCompressionValues, SizeMapValue } from './validation/Condition';
+import { eraseLines, write } from './process';
 
 // Disable output colors for test runs.
 kleur.enabled = !('AVA_PATH' in process.env);
@@ -60,12 +61,13 @@ export class Report {
   private paths: Array<string>;
   private maxPathDisplay: number = 30;
   private maxFormatDisplay: number;
-  private pathsDrawn: Set<string>;
   private success: number = 0;
   private failure: number = 0;
   private warning: number = 0;
-  private currentLine: string;
   private silent: boolean = false;
+  private firstUpdate: boolean = true;
+  private currentLine: string;
+  private redraw: boolean = false;
 
   constructor(context: Context) {
     if (context.silent === true) {
@@ -76,86 +78,103 @@ export class Report {
     this.paths = Array.from(context.compressed.keys());
     this.maxPathDisplay = Math.max.apply(
       null,
-      this.paths.map(path => Math.min(path.length, this.maxPathDisplay) + 2),
+      Array.from(context.originalPaths.values()).map(ogPath => Math.min(ogPath.length, this.maxPathDisplay) + 2),
     );
 
     this.maxFormatDisplay =
       Math.max.apply(
         null,
         OrderedCompressionValues.map(compression => compression.length),
-      ) + 2;
-
-    this.pathsDrawn = new Set();
+      ) + 3;
 
     this.start();
   }
 
-  private displaySize = (sizeMapValue: SizeMapValue, mapIndex: number): boolean => {
+  private displaySize = (sizeMapValue: SizeMapValue, mapIndex: number): boolean | null => {
     const [size, maxSize] = sizeMapValue[mapIndex] as [number | null, number | null];
     if (size === undefined || size === null || maxSize === undefined || maxSize === null) {
       this.currentLine += dim().grey('–'.padEnd(this.maxFormatDisplay));
-      return false;
+      return size === undefined ? false : null;
+    }
+
+    const outputBytes = prettyBytes(size);
+    if (outputBytes.length >= this.maxFormatDisplay) {
+      this.maxFormatDisplay = outputBytes.length + 2;
+      this.redraw = true;
     }
 
     if (size < maxSize) {
       if (1 - size / maxSize < 0.05) {
         this.warning++;
-        this.currentLine += yellow(prettyBytes(size).padEnd(this.maxFormatDisplay));
+        this.currentLine += yellow(outputBytes.padEnd(this.maxFormatDisplay));
         return false;
       }
 
       this.success++;
-      this.currentLine += dim().green(prettyBytes(size).padEnd(this.maxFormatDisplay));
+      this.currentLine += dim().green(outputBytes.padEnd(this.maxFormatDisplay));
       return false;
     }
 
     this.failure++;
-    this.currentLine += red(prettyBytes(size).padEnd(this.maxFormatDisplay));
+    this.currentLine += red(outputBytes.padEnd(this.maxFormatDisplay));
     return true;
   };
 
+  private formats = (): string => {
+    return OrderedCompressionValues.map(compression => compression.padEnd(this.maxFormatDisplay)).join('');
+  };
+
   private start(): void {
-    const formats = OrderedCompressionValues.map(compression => compression.padEnd(this.maxFormatDisplay)).join('');
-    console.log(bold('\n  Filesizes'));
-    console.log(''.padEnd(this.maxPathDisplay + 4) + ' ' + formats);
+    write(bold('\n  Filesizes\n'));
   }
 
   public update = (context: Context): void => {
     if (this.silent) {
       return;
     }
+    this.currentLine = '';
+    this.redraw = false;
+    this.success = 0;
+    this.failure = 0;
+    this.warning = 0;
 
+    let output: string = '';
     for (const path of this.paths) {
       const sizeMapValue = context.compressed.get(path);
-      if (!sizeMapValue || this.pathsDrawn.has(path)) {
-        // Do not output paths already drawn or with incomplete maps.
+      if (!sizeMapValue) {
         continue;
       }
 
-      if (sizeMapValue.some(size => size[0] === null)) {
-        // If any size is null, then it's still being calculated.
-        // This is our indication to exit the update.
-        // Since we will recall it when each entry has been calculated in order.
-        return;
-      }
-
-      // Otherwise, we can draw this path.
+      const displayPath = context.originalPaths.get(path) || path;
       let includesFailure = false;
-      this.currentLine = ' ' + path.substring(path.length - this.maxPathDisplay) + ' ';
+      let isProcessing = false;
+      this.currentLine = ' ' + displayPath.substring(displayPath.length - this.maxPathDisplay).padEnd(this.maxPathDisplay) + ' ';
       for (let i = 0; i < OrderedCompressionValues.length; i++) {
         const hasFailure = this.displaySize(sizeMapValue, i);
-        if (includesFailure !== true) {
+        if (hasFailure === null) {
+          isProcessing = true;
+        } else if (includesFailure !== true) {
           includesFailure = hasFailure;
         }
       }
-      if (includesFailure) {
+      if (isProcessing) {
+        this.currentLine = '  ' + dim().grey('-') + this.currentLine;
+      } else if (includesFailure) {
         this.currentLine = '  ' + red(ICONS['cross']) + this.currentLine;
       } else {
         this.currentLine = '  ' + dim().green(ICONS['tick']) + this.currentLine;
       }
 
-      this.pathsDrawn.add(path);
-      console.log(this.currentLine);
+      output += this.currentLine + '\n';
+    }
+
+    const toErase = this.firstUpdate ? 1 : this.paths.length + 2;
+    if (!this.redraw) {
+      eraseLines(toErase);
+      this.firstUpdate = false;
+      write(`${''.padEnd(this.maxPathDisplay + 4)} ${this.formats()}\n` + output);
+    } else {
+      this.update(context);
     }
   };
 
@@ -165,14 +184,15 @@ export class Report {
     }
 
     const { success, failure, warning } = this;
-    if (success > 0 || failure > 0) {
-      console.log('\n  ' + green(success + ` ${success === 1 ? 'check' : 'checks'} passed`) + (failure === 0 ? ` ${ICONS['tada']}` : ''));
+    if (success > 0 || failure > 0 || warning > 0) {
+      write('\n  ' + green(success + ` ${success === 1 ? 'check' : 'checks'} passed`) + (failure === 0 ? ` ${ICONS['tada']}` : ''));
       if (warning > 0) {
-        console.log('  ' + yellow(warning + ` ${warning === 1 ? 'check' : 'checks'} warned`) + grey(' (within 5% of allowed size)'));
+        write('\n  ' + yellow(warning + ` ${warning === 1 ? 'check' : 'checks'} warned`) + grey(' (within 5% of allowed size)'));
       }
       if (failure > 0) {
-        console.log('  ' + red(failure + ` ${failure === 1 ? 'check' : 'checks'} failed`));
+        write('\n  ' + red(failure + ` ${failure === 1 ? 'check' : 'checks'} failed`));
       }
+      write('\n\n');
     }
   };
 }

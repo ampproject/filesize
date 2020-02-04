@@ -20,6 +20,7 @@ import Config from './validation/Config';
 import { Context } from './validation/Condition';
 import compress from './compress';
 import { LogError } from './log';
+import { shutdown } from './process';
 
 const args = mri(process.argv.slice(2), {
   alias: { p: 'project' },
@@ -37,6 +38,7 @@ const args = mri(process.argv.slice(2), {
     packagePath: '',
     packageContent: '',
     silent,
+    originalPaths: new Map(),
     // Stores the result of compression <path, [...results]>
     compressed: new Map(),
     // Stores the basis of comparison.
@@ -47,11 +49,11 @@ const args = mri(process.argv.slice(2), {
     const message = await condition(context)();
     if (message !== null) {
       LogError(message);
-      process.exit(5);
+      shutdown(5);
     }
   }
 
   if (!(await compress(context))) {
-    process.exit(6);
+    shutdown(6);
   }
 })();

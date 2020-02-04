@@ -33,7 +33,7 @@ function makeExecutable() {
   };
 }
 
-const external = ['os', 'zlib', 'path', 'fs', 'stream', 'util', 'events', 'fast-glob'];
+const external = ['os', 'zlib', 'path', 'fs', 'stream', 'util', 'events', 'fast-glob', 'process'];
 const plugins = executable => [
   resolve({ preferBuiltins: true }),
   commonjs({ include: 'node_modules/**' }),

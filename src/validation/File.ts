@@ -73,6 +73,7 @@ export default async function validateFileConfig(
     }
     compressedItem[SizeMapValueIndex[compression]] = [null, maxSize];
     context.compressed.set(path, compressedItem);
+    context.originalPaths.set(path, originalPath);
   }
   return null;
 }

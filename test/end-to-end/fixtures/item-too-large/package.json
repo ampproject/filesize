@@ -1,6 +1,23 @@
 {
   "filesize": {
     "test/end-to-end/fixtures/item-too-large/index.js": {
+      "brotli": "15 kB",
+      "gzip": "20 kB",
+      "none": "500 kB"
+    },
+    "test/end-to-end/fixtures/item-too-large/foo.js": {
+      "brotli": "15 kB",
+      "gzip": "20 kB",
+      "none": "500 kB"
+    },
+    "test/end-to-end/fixtures/item-too-large/bar.js": {
+      "brotli": "15 kB",
+      "gzip": "20 kB",
+      "none": "500 kB"
+    },
+    "test/end-to-end/fixtures/item-too-large/baz.js": {
+      "brotli": "15 kB",
+      "gzip": "20 kB",
       "none": "500 kB"
     }
   }
