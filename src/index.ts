@@ -19,36 +19,39 @@ import Project from './validation/Project';
 import Config from './validation/Config';
 import { Context } from './validation/Condition';
 import compress from './compress';
+import { LogError } from './log';
 
 const args = mri(process.argv.slice(2), {
   alias: { p: 'project' },
-  default: { project: process.cwd() },
+  default: { project: process.cwd(), silent: false },
 });
 
 /**
  * Read the configuration from the specified project, validate it, perform requested compression, and report the results.
  */
 (async function() {
-  const { project } = args;
+  const { project: projectPath, silent } = args;
   const conditions = [Project, Config];
-  let context: Context = {
-    project,
-    package: '',
-    config: [],
-    track: [],
-    silent: false,
+  const context: Context = {
+    projectPath,
+    packagePath: '',
+    packageContent: '',
+    silent,
+    // Stores the result of compression <path, [...results]>
+    compressed: new Map(),
+    // Stores the basis of comparison.
+    comparison: new Map(),
   };
 
   for (const condition of conditions) {
     const message = await condition(context)();
     if (message !== null) {
-      console.log(message);
+      LogError(message);
       process.exit(5);
     }
   }
 
-  const [compressionSuccess] = await compress(context);
-  if (!compressionSuccess) {
+  if (!(await compress(context))) {
     process.exit(6);
   }
 })();

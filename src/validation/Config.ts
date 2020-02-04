@@ -15,106 +15,96 @@
  */
 
 import { readFile } from '../fs';
-import { Context, ConditionFunction, ItemConfig } from './Condition';
+import { Context, ConditionFunction, ValidationResponse } from './Condition';
 import { Track } from './Track';
 import { MakeError } from '../log';
 import ValidateFileConfig from './File';
 import { isObject } from '../object';
-
-interface ConfigContext {
-  error: string | null;
-  package: string;
-  content: string | null;
-  json: any;
-  keys: any;
-}
-
-/**
- * Read the contents of package.json.
- * @param context
- */
-async function readPackage(context: ConfigContext): Promise<void> {
-  context.content = await readFile(context.package);
-  if (context.content === null) {
-    context.error = `Could not read the configuration in '${context.package}'`;
-  }
-}
-
-/**
- * Parse the content of package.json, ensure data is usable.
- * @param context
- */
-async function parsePackage(context: ConfigContext): Promise<void> {
-  try {
-    const { filesize: json } = JSON.parse(context.content as string);
-
-    if (typeof json === 'undefined') {
-      context.error = `There is no 'filesize' configuration in '${context.package}'`;
-      return;
-    }
-
-    const { track, ...keys } = json;
-    if (Object.entries(keys).length === 0) {
-      context.error = `There is no data inside the 'filesize' configuration in '${context.package}'`;
-      return;
-    }
-
-    if (!isObject(keys)) {
-      context.error =
-        `'filesize' configuration is not an object in '${context.package}'` +
-        '(See https://github.com/ampproject/filesize/... for details on the structure of the filesize object).';
-      return;
-    }
-
-    context.json = json;
-    context.keys = keys;
-  } catch (e) {
-    context.error = `Could not parse '${context.package}'`;
-  }
-}
 
 /**
  * Parse the content of the 'filesize' items.
  * @param context
  * @param overallContext
  */
-async function parseFiles(context: ConfigContext, overallContext: Context): Promise<void> {
-  let index = 0;
-  for (const [path, item] of Object.entries(context.keys)) {
-    index++;
+async function parseEnforcedKeys(context: Context, enforcedKeys: any): Promise<ValidationResponse> {
+  for (const [path, item] of Object.entries(enforcedKeys)) {
     if (!isObject(item)) {
       continue;
     }
 
-    const { success, error, config } = await ValidateFileConfig(path, index, item as any);
-    if (!success) {
-      context.error = error;
-      return;
+    const error = await ValidateFileConfig(path, item as any, context);
+    if (error) {
+      return error;
     }
-    overallContext.config.push(...(config as Array<ItemConfig>));
   }
+
+  return null;
 }
 
-const CONDITIONS = [readPackage, parsePackage, parseFiles];
+const CONDITIONS = [
+  /**
+   * Read the contents of package.json.
+   * @param context
+   */
+  async function readPackage(context: Context): Promise<ValidationResponse> {
+    const packageContent = await readFile(context.packagePath);
+    if (packageContent === null) {
+      return `Could not read the configuration in '${context.packagePath}'`;
+    }
+
+    context.packageContent = packageContent;
+    return null;
+  },
+  /**
+   * Parse the content of package.json, ensure data is usable.
+   * @param context
+   */
+  async function parsePackage(context: Context): Promise<ValidationResponse> {
+    try {
+      const { filesize: json } = JSON.parse(context.packageContent as string);
+
+      if (typeof json === 'undefined') {
+        return `There is no 'filesize' configuration in '${context.packagePath}'`;
+      }
+
+      const { track, ...keys } = json;
+      if (Object.entries(keys).length === 0) {
+        return `There is no data inside the 'filesize' configuration in '${context.packagePath}'`;
+      }
+
+      if (!isObject(keys)) {
+        return (
+          `'filesize' configuration is not an object in '${context.packagePath}'` +
+          '(See https://github.com/ampproject/filesize/#usage for details on the structure of the filesize object).'
+        );
+      }
+
+      // Since we have tracked entries, we need to store them
+      const parseTrackingResult = await Track(context, json);
+      if (parseTrackingResult !== null) {
+        return parseTrackingResult;
+      }
+
+      const parseKeysResults = await parseEnforcedKeys(context, keys);
+      if (parseKeysResults !== null) {
+        return parseKeysResults;
+      }
+    } catch (e) {
+      return `Could not parse '${context.packagePath}'`;
+    }
+    return null;
+  },
+];
 
 const Config: ConditionFunction = (context: Context) =>
   async function() {
-    const configContext: ConfigContext = {
-      error: null,
-      package: context.package,
-      content: null,
-      keys: null,
-      json: null,
-    };
     for await (const condition of CONDITIONS) {
-      await condition(configContext, context);
-      if (configContext.error !== null) {
-        return MakeError(configContext.error);
+      const conditionResult = await condition(context);
+      if (conditionResult !== null) {
+        return MakeError(conditionResult);
       }
     }
 
-    // If all successful, add elements for tracking size deltas.
-    await Track(context, configContext.keys);
     return null;
   };
 

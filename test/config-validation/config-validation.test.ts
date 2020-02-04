@@ -16,81 +16,88 @@
 
 import test from 'ava';
 import Config from '../../src/validation/Config';
+import { Context } from '../../src/validation/Condition';
 
 test('missing package.json should fail', async t => {
-  const context = {
-    package: 'test/config-validation/fixtures/missing-package-json/package.json',
-    config: [],
-    project: 'test/config-validation/fixtures/missing-package-json',
+  const context: Context = {
+    packagePath: 'test/config-validation/fixtures/missing-package-json/package.json',
+    projectPath: 'test/config-validation/fixtures/missing-package-json',
+    packageContent: '',
+    compressed: new Map(),
+    comparison: new Map(),
     silent: false,
-    track: [],
   };
   const message = await Config(context)();
 
-  t.is(message, `error Could not read the configuration in '${context.package}'`);
+  t.is(message, `error Could not read the configuration in '${context.packagePath}'`);
 });
 
 test('unparseable package.json should fail', async t => {
-  const context = {
-    package: 'test/config-validation/fixtures/unparseable-package-json/package.json',
-    config: [],
-    project: 'test/config-validation/fixtures/unparseable-package-json',
+  const context: Context = {
+    packagePath: 'test/config-validation/fixtures/unparseable-package-json/package.json',
+    projectPath: 'test/config-validation/fixtures/unparseable-package-json',
+    packageContent: '',
+    compressed: new Map(),
+    comparison: new Map(),
     silent: false,
-    track: [],
   };
   const message = await Config(context)();
 
-  t.is(message, `error Could not parse '${context.package}'`);
+  t.is(message, `error Could not parse '${context.packagePath}'`);
 });
 
 test("missing 'filesize' key from package.json should fail", async t => {
-  const context = {
-    package: 'test/config-validation/fixtures/missing-configuration/package.json',
-    config: [],
-    project: 'test/config-validation/fixtures/missing-configuration',
+  const context: Context = {
+    packagePath: 'test/config-validation/fixtures/missing-configuration/package.json',
+    projectPath: 'test/config-validation/fixtures/missing-configuration',
+    packageContent: '',
+    compressed: new Map(),
+    comparison: new Map(),
     silent: false,
-    track: [],
   };
   const message = await Config(context)();
 
-  t.is(message, `error There is no 'filesize' configuration in '${context.package}'`);
+  t.is(message, `error There is no 'filesize' configuration in '${context.packagePath}'`);
 });
 
 test("missing path from item in 'filesize' should fail", async t => {
-  const context = {
-    package: 'test/config-validation/fixtures/item-path-missing/package.json',
-    config: [],
-    project: 'test/config-validation/fixtures/item-path-missing',
+  const context: Context = {
+    packagePath: 'test/config-validation/fixtures/item-path-missing/package.json',
+    projectPath: 'test/config-validation/fixtures/item-path-missing',
+    packageContent: '',
+    compressed: new Map(),
+    comparison: new Map(),
     silent: false,
-    track: [],
   };
   const message = await Config(context)();
 
-  t.is(message, `error There is no data inside the 'filesize' configuration in '${context.package}'`);
+  t.is(message, `error There is no data inside the 'filesize' configuration in '${context.packagePath}'`);
 });
 
 test("missing maxSize from item in 'filesize' should fail", async t => {
-  const context = {
-    package: 'test/config-validation/fixtures/max-size-missing/package.json',
-    config: [],
-    project: 'test/config-validation/fixtures/max-size-missing',
+  const context: Context = {
+    packagePath: 'test/config-validation/fixtures/max-size-missing/package.json',
+    projectPath: 'test/config-validation/fixtures/max-size-missing',
+    packageContent: '',
+    compressed: new Map(),
+    comparison: new Map(),
     silent: false,
-    track: [],
   };
   const message = await Config(context)();
 
-  t.is(message, `error Configuration for '${context.project}/index.js' is invalid. (size unspecified)`);
+  t.is(message, `error Configuration for '${context.projectPath}/index.js' is invalid. (size unspecified)`);
 });
 
 test("missing compression from item in 'filesize' should fail", async t => {
-  const context = {
-    package: 'test/config-validation/fixtures/compression-missing/package.json',
-    config: [],
-    project: 'test/config-validation/fixtures/compression-missing',
+  const context: Context = {
+    packagePath: 'test/config-validation/fixtures/compression-missing/package.json',
+    projectPath: 'test/config-validation/fixtures/compression-missing',
+    packageContent: '',
+    compressed: new Map(),
+    comparison: new Map(),
     silent: false,
-    track: [],
   };
   const message = await Config(context)();
 
-  t.is(message, `error Configuration for '${context.project}/index.js' is invalid. (compression values unspecified)`);
+  t.is(message, `error Configuration for '${context.projectPath}/index.js' is invalid. (compression values unspecified)`);
 });

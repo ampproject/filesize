@@ -16,7 +16,7 @@
 
 const kleur = require('kleur');
 const bytes = require('bytes');
-import { ItemConfig, CompressionMap, Context, OrderedCompressionValues } from './validation/Condition';
+import { Context, OrderedCompressionValues, SizeMapValue } from './validation/Condition';
 
 // Disable output colors for test runs.
 kleur.enabled = !('AVA_PATH' in process.env);
@@ -24,10 +24,12 @@ kleur.enabled = !('AVA_PATH' in process.env);
 // Aliases to colors used.
 // @ts-ignore
 const { red, grey, yellow, green, bold, dim } = kleur;
+
+const isWin32 = process.platform === 'win32';
 const ICONS = {
-  tick: ['✔', '√'],
-  cross: ['✖', '×'],
-  tada: ['🎉', '🎉'],
+  tick: isWin32 ? '√' : '✔',
+  cross: isWin32 ? '×' : '✖',
+  tada: '🎉',
 };
 
 /**
@@ -54,134 +56,123 @@ function prettyBytes(size: number): string {
   return bytes(size, { unit: 'kb', fixedDecimals: true, unitSeparator: ' ' });
 }
 
-/**
- * Retrieve an icon appropriate for your OS.
- * @param name
- */
-function getIcon(name: 'tick' | 'cross' | 'tada') {
-  if (process.platform === 'win32') {
-    return ICONS[name][1];
-  }
+export class Report {
+  private paths: Array<string>;
+  private maxPathDisplay: number = 30;
+  private maxFormatDisplay: number;
+  private pathsDrawn: Set<string>;
+  private success: number = 0;
+  private failure: number = 0;
+  private warning: number = 0;
+  private currentLine: string;
+  private silent: boolean = false;
 
-  return ICONS[name][0];
-}
-
-/**
- *
- * @param size
- * @param maxSize
- * @param maxWidth
- */
-function displaySize(size: number | null, maxSize: number | null, maxWidth: number): ['success' | 'warning' | 'failure' | null, string] {
-  if (size === null || maxSize === null) {
-    return [null, dim().grey('–'.padEnd(maxWidth))];
-  } else if (size < maxSize) {
-    if (1 - size / maxSize < 0.05) {
-      return ['warning', yellow(prettyBytes(size).padEnd(maxWidth))];
+  constructor(context: Context) {
+    if (context.silent === true) {
+      this.silent = true;
+      return;
     }
-    return ['success', dim().green(prettyBytes(size).padEnd(maxWidth))];
-  } else {
-    return ['failure', red(prettyBytes(size).padEnd(maxWidth))];
+
+    this.paths = Array.from(context.compressed.keys());
+    this.maxPathDisplay = Math.max.apply(
+      null,
+      this.paths.map(path => Math.min(path.length, this.maxPathDisplay) + 2),
+    );
+
+    this.maxFormatDisplay =
+      Math.max.apply(
+        null,
+        OrderedCompressionValues.map(compression => compression.length),
+      ) + 2;
+
+    this.pathsDrawn = new Set();
+
+    this.start();
   }
-}
 
-/**
- *
- * @param report
- * @param paths
- * @param compression
- */
-function maxLengthForCompression(report: Map<ItemConfig['path'], CompressionMap>, paths: Array<string>, compression: string): number {
-  const reportedValueStrings: Array<number> = [compression.length];
+  private displaySize = (sizeMapValue: SizeMapValue, mapIndex: number): boolean => {
+    const [size, maxSize] = sizeMapValue[mapIndex] as [number | null, number | null];
+    if (size === undefined || size === null || maxSize === undefined || maxSize === null) {
+      this.currentLine += dim().grey('–'.padEnd(this.maxFormatDisplay));
+      return false;
+    }
 
-  for (const path of paths) {
-    const value = report.get(path)?.get(compression);
-    if (value) {
-      const [size] = value;
-      if (size !== null) {
-        reportedValueStrings.push(prettyBytes(size).length);
+    if (size < maxSize) {
+      if (1 - size / maxSize < 0.05) {
+        this.warning++;
+        this.currentLine += yellow(prettyBytes(size).padEnd(this.maxFormatDisplay));
+        return false;
+      }
+
+      this.success++;
+      this.currentLine += dim().green(prettyBytes(size).padEnd(this.maxFormatDisplay));
+      return false;
+    }
+
+    this.failure++;
+    this.currentLine += red(prettyBytes(size).padEnd(this.maxFormatDisplay));
+    return true;
+  };
+
+  private start(): void {
+    const formats = OrderedCompressionValues.map(compression => compression.padEnd(this.maxFormatDisplay)).join('');
+    console.log(bold('\n  Filesizes'));
+    console.log(''.padEnd(this.maxPathDisplay + 4) + ' ' + formats);
+  }
+
+  public update = (context: Context): void => {
+    if (this.silent) {
+      return;
+    }
+
+    for (const path of this.paths) {
+      const sizeMapValue = context.compressed.get(path);
+      if (!sizeMapValue || this.pathsDrawn.has(path)) {
+        // Do not output paths already drawn or with incomplete maps.
+        continue;
+      }
+
+      if (sizeMapValue.some(size => size[0] === null)) {
+        // If any size is null, then it's still being calculated.
+        // This is our indication to exit the update.
+        // Since we will recall it when each entry has been calculated in order.
+        return;
+      }
+
+      // Otherwise, we can draw this path.
+      let includesFailure = false;
+      this.currentLine = ' ' + path.substring(path.length - this.maxPathDisplay) + ' ';
+      for (let i = 0; i < OrderedCompressionValues.length; i++) {
+        const hasFailure = this.displaySize(sizeMapValue, i);
+        if (includesFailure !== true) {
+          includesFailure = hasFailure;
+        }
+      }
+      if (includesFailure) {
+        this.currentLine = '  ' + red(ICONS['cross']) + this.currentLine;
+      } else {
+        this.currentLine = '  ' + dim().green(ICONS['tick']) + this.currentLine;
+      }
+
+      this.pathsDrawn.add(path);
+      console.log(this.currentLine);
+    }
+  };
+
+  public end = (): void => {
+    if (this.silent) {
+      return;
+    }
+
+    const { success, failure, warning } = this;
+    if (success > 0 || failure > 0) {
+      console.log('\n  ' + green(success + ` ${success === 1 ? 'check' : 'checks'} passed`) + (failure === 0 ? ` ${ICONS['tada']}` : ''));
+      if (warning > 0) {
+        console.log('  ' + yellow(warning + ` ${warning === 1 ? 'check' : 'checks'} warned`) + grey(' (within 5% of allowed size)'));
+      }
+      if (failure > 0) {
+        console.log('  ' + red(failure + ` ${failure === 1 ? 'check' : 'checks'} failed`));
       }
     }
-  }
-
-  return Math.max.apply(null, reportedValueStrings) + 2;
-}
-
-/**
- * Given a compression type, format it to a human readable file extension.
- * @param compression
- */
-function compressedExtension(compression: string, padEnd: number): string {
-  return compression.padEnd(padEnd);
-}
-
-/**
- * Display report to the console.
- * @param report
- */
-export function LogReport({ silent }: Context, report: Map<ItemConfig['path'], CompressionMap>) {
-  if (silent) {
-    return;
-  }
-
-  const paths = Array.from(report.keys());
-  const maxDisplayablePath = 30;
-  const pathMaxLength = Math.max.apply(
-    null,
-    paths.map(path => Math.min(path.length, maxDisplayablePath) + 2),
-  );
-  const formatMaxLengths = OrderedCompressionValues.map(compression => maxLengthForCompression(report, paths, compression));
-  const compressionHeaders = OrderedCompressionValues.map((compression, index) => compressedExtension(compression, formatMaxLengths[index]));
-  let success: number = 0;
-  let failure: number = 0;
-  let warning: number = 0;
-
-  console.log(bold('\n  Filesizes'));
-  console.log(''.padEnd(pathMaxLength + 4) + ' ' + compressionHeaders.join(''));
-  for (const path of paths) {
-    const compressionMap = report.get(path);
-    if (!compressionMap) {
-      continue;
-    }
-
-    let includesFailure = false;
-    let message = ' ' + path.substring(path.length - maxDisplayablePath).padEnd(pathMaxLength) + ' ';
-    let compressionIndex = 0;
-    for (const compression of OrderedCompressionValues) {
-      const padding = compressionHeaders[compressionIndex].length;
-      const [size, maxSize] = compressionMap.get(compression) as [number | null, number | null];
-
-      const [status, compressionMessage] = displaySize(size, maxSize, padding);
-      switch (status) {
-        case 'success':
-          success++;
-          break;
-        case 'failure':
-          failure++;
-          includesFailure = true;
-          break;
-        case 'warning':
-          warning++;
-          break;
-      }
-      message += compressionMessage;
-      compressionIndex++;
-    }
-    if (includesFailure) {
-      message = '  ' + red(getIcon('cross')) + message;
-    } else {
-      message = '  ' + dim().green(getIcon('tick')) + message;
-    }
-    console.log(message);
-  }
-  if (success > 0 || failure > 0) {
-    console.log('\n  ' + green(success + ` ${success === 1 ? 'check' : 'checks'} passed`) + (failure === 0 ? ` ${getIcon('tada')}` : ''));
-    if (warning > 0) {
-      console.log('  ' + yellow(warning + ` ${warning === 1 ? 'check' : 'checks'} warned`) + grey(' (within 5% of allowed size)'));
-    }
-    if (failure > 0) {
-      console.log('  ' + red(failure + ` ${failure === 1 ? 'check' : 'checks'} failed`));
-    }
-  }
-  console.log();
+  };
 }

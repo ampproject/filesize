@@ -16,14 +16,16 @@
 
 import test from 'ava';
 import Config from '../../src/validation/Config';
+import { Context } from '../../src/validation/Condition';
 
-test('missing package.json should fail', async t => {
-  const context = {
-    package: 'test/config-validation/fixtures/compression-array/package.json',
-    config: [],
-    project: 'test/config-validation/fixtures/compression-array',
+test('including trackable items should succeed', async t => {
+  const context: Context = {
+    packagePath: 'test/config-validation/fixtures/track/package.json',
+    projectPath: 'test/config-validation/fixtures/track',
+    packageContent: '',
+    compressed: new Map(),
+    comparison: new Map(),
     silent: false,
-    track: [],
   };
   const message = await Config(context)();
 

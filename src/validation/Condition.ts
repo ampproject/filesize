@@ -14,32 +14,46 @@
  * limitations under the License.
  */
 
+// string indicates an error of the formatted return type.
+// null indicates success.
 export type ValidationResponse = string | null;
-
-export enum Compression {
-  NONE = 'none',
-  GZIP = 'gzip',
-  BROTLI = 'brotli',
-}
-export const OrderedCompressionValues = [Compression.BROTLI, Compression.GZIP, Compression.NONE];
-
-export type CompressionMapValue = [number | null, number | null];
-export type CompressionMap = Map<string, CompressionMapValue>;
-export const OrderedCompressionMap: CompressionMap = new Map(OrderedCompressionValues.map(value => [value, [null, null]]));
-export const CompressionDisplayLength = OrderedCompressionValues.sort((a, b) => b.length - a.length)[0].length;
-
-export interface ItemConfig {
-  originalPath: string;
-  path: string;
-  compression: string;
-  maxSize: number;
-}
-export interface Context {
-  project: string;
-  package: string;
-  config: Array<ItemConfig>;
-  track: Array<string>;
-  silent: boolean;
-}
-
 export type ConditionFunction = (context: Context) => () => Promise<ValidationResponse>;
+
+export type Compression = 'brotli' | 'gzip' | 'none';
+export const OrderedCompressionValues = ['brotli', 'gzip', 'none'];
+
+type path = string;
+export type OriginalPath = Map<path, path>;
+
+/*
+- number    = calculated
+- null      = awaiting calculation
+- undefined = ignored
+*/
+type size = number | null | undefined;
+/*
+- number    = max allowed size
+- undefined = unrestricted size
+*/
+export type maxSize = number | undefined;
+type brotli = [size, maxSize];
+type gzip = [size, maxSize];
+type none = [size, maxSize];
+export type SizeMapValue = [brotli, gzip, none];
+export const SizeMapValueIndex = {
+  brotli: 0,
+  gzip: 1,
+  none: 2,
+};
+export type SizeMap = Map<path, SizeMapValue>;
+
+export interface Context {
+  projectPath: string;
+  packagePath: string;
+  packageContent: string | null;
+  silent: boolean;
+  // Stores the result of compression <path, [...results]>
+  compressed: SizeMap;
+  // Stores the basis of comparison.
+  comparison: SizeMap;
+}
