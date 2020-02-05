@@ -18,7 +18,7 @@
   },
   "scripts": {
     "pretest": "tsc -p test/tsconfig.json",
-    "test": "ava -v",
+    "test": "ava -v --timeout=2m",
     "clean": "rimraf dist output test/output",
     "build": "rollup -c; shx chmod a+x dist/filesize",
     "try": "./dist/filesize",
@@ -32,14 +32,14 @@
     "mri": "1.1.4"
   },
   "devDependencies": {
-    "@ampproject/rollup-plugin-closure-compiler": "0.20.0",
+    "@ampproject/rollup-plugin-closure-compiler": "0.21.0",
     "@rollup/plugin-commonjs": "11.0.1",
     "@rollup/plugin-node-resolve": "7.0.0",
     "@rollup/plugin-typescript": "3.0.0",
     "@types/bytes": "3.1.0",
     "@types/mri": "1.1.0",
     "@types/node": "12.12.26",
-    "ava": "3.1.0",
+    "ava": "3.2.0",
     "husky": "4.2.1",
     "lint-staged": "10.0.7",
     "magic-string": "0.25.6",
