@@ -54,7 +54,7 @@
   },
   "volta": {
     "node": "12.14.1",
-    "yarn": "1.21.1"
+    "yarn": "1.22.0"
   },
   "filesize": {
     "./dist/filesize": {
