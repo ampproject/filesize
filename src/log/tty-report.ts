@@ -17,7 +17,7 @@
 const kleur = require('kleur');
 import { Report } from './report';
 import { Context, OrderedCompressionValues } from '../validation/Condition';
-import { erase, write } from './helpers/output';
+import { write, erase } from './helpers/output';
 import { ICONS } from './helpers/icons';
 
 // Disable output colors for test runs.
@@ -27,16 +27,23 @@ kleur.enabled = !('AVA_PATH' in process.env);
 const { red, grey, yellow, green, bold, dim } = kleur;
 
 export class TTYReport extends Report {
-  private firstUpdate: boolean = true;
+  private outputLength: number = 0;
+
+  private reset = (): number => {
+    const previousOutputLength = this.outputLength;
+    this.currentLine = '';
+    this.success = 0;
+    this.failure = 0;
+    this.warning = 0;
+    this.outputLength = 0;
+    return previousOutputLength;
+  };
 
   public update = (context: Context): void => {
     if (this.silent) {
       return;
     }
-    this.currentLine = '';
-    this.success = 0;
-    this.failure = 0;
-    this.warning = 0;
+    const previousOutputLength = this.reset();
 
     let output: string = '';
     for (const path of this.paths) {
@@ -66,10 +73,29 @@ export class TTYReport extends Report {
       }
 
       output += this.currentLine + '\n';
+      this.outputLength++;
     }
 
-    erase(this.firstUpdate ? 0 : this.paths.length + 1);
-    this.firstUpdate = false;
+    erase(previousOutputLength);
     write(output);
+    write('\n  ' + green(this.success + ` ${this.success === 1 ? 'check' : 'checks'} passed`) + (this.failure === 0 ? ` ${ICONS['tada']}` : ''));
+    this.outputLength++;
+    if (this.warning > 0) {
+      write('\n  ' + yellow(this.warning + ` ${this.warning === 1 ? 'check' : 'checks'} warned`) + grey(' (within 5% of allowed size)'));
+      this.outputLength++;
+    }
+    if (this.failure > 0) {
+      write('\n  ' + red(this.failure + ` ${this.failure === 1 ? 'check' : 'checks'} failed`));
+      this.outputLength++;
+    }
+    write('\n\n');
+    this.outputLength = this.outputLength + 3;
+  };
+
+  /**
+   *
+   */
+  public end = (): void => {
+    return;
   };
 }

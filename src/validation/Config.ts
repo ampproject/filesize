@@ -17,7 +17,6 @@
 import { readFile } from '../helpers/fs';
 import { Context, ConditionFunction, ValidationResponse } from './Condition';
 import { Track } from './Track';
-import { MakeError } from '../log/helpers/error';
 import ValidateFileConfig from './File';
 import { isObject } from '../helpers/object';
 
@@ -101,7 +100,7 @@ const Config: ConditionFunction = (context: Context) =>
     for await (const condition of CONDITIONS) {
       const conditionResult = await condition(context);
       if (conditionResult !== null) {
-        return MakeError(conditionResult);
+        return conditionResult;
       }
     }
 

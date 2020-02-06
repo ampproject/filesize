@@ -1,7 +1,7 @@
 {
   "filesize": {
     "track": ["test/config-validation/fixtures/track/*"],
-    "test/config-validation/fixtures/track/index.js": {
+    "index.js": {
       "brotli": "5 kB",
       "gzip": "8 kB",
       "none": "20 kB"

@@ -45,15 +45,19 @@ const args = mri(process.argv.slice(2), {
     comparison: new Map(),
   };
 
+  let errorOccured: boolean = false;
   for (const condition of conditions) {
     const message = await condition(context)();
     if (message !== null) {
       LogError(message);
       shutdown(5);
+      errorOccured = true;
     }
   }
 
-  if (!(await compress(context))) {
-    shutdown(6);
+  if (!errorOccured) {
+    if (!(await compress(context))) {
+      shutdown(6);
+    }
   }
 })();

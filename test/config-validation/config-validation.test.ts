@@ -30,7 +30,7 @@ test('missing package.json should fail', async t => {
   };
   const message = await Config(context)();
 
-  t.is(message, `error Could not read the configuration in '${context.packagePath}'`);
+  t.is(message, `Could not read the configuration in '${context.packagePath}'`);
 });
 
 test('unparseable package.json should fail', async t => {
@@ -45,7 +45,7 @@ test('unparseable package.json should fail', async t => {
   };
   const message = await Config(context)();
 
-  t.is(message, `error Could not parse '${context.packagePath}'`);
+  t.is(message, `Could not parse '${context.packagePath}'`);
 });
 
 test("missing 'filesize' key from package.json should fail", async t => {
@@ -60,7 +60,7 @@ test("missing 'filesize' key from package.json should fail", async t => {
   };
   const message = await Config(context)();
 
-  t.is(message, `error There is no 'filesize' configuration in '${context.packagePath}'`);
+  t.is(message, `There is no 'filesize' configuration in '${context.packagePath}'`);
 });
 
 test("missing path from item in 'filesize' should fail", async t => {
@@ -75,7 +75,7 @@ test("missing path from item in 'filesize' should fail", async t => {
   };
   const message = await Config(context)();
 
-  t.is(message, `error There is no data inside the 'filesize' configuration in '${context.packagePath}'`);
+  t.is(message, `There is no data inside the 'filesize' configuration in '${context.packagePath}'`);
 });
 
 test("missing maxSize from item in 'filesize' should fail", async t => {
@@ -90,7 +90,7 @@ test("missing maxSize from item in 'filesize' should fail", async t => {
   };
   const message = await Config(context)();
 
-  t.is(message, `error Configuration for '${context.projectPath}/index.js' is invalid. (size unspecified)`);
+  t.is(message, `Configuration for 'index.js' is invalid. (size unspecified)`);
 });
 
 test("missing compression from item in 'filesize' should fail", async t => {
@@ -105,5 +105,5 @@ test("missing compression from item in 'filesize' should fail", async t => {
   };
   const message = await Config(context)();
 
-  t.is(message, `error Configuration for '${context.projectPath}/index.js' is invalid. (compression values unspecified)`);
+  t.is(message, `Configuration for 'index.js' is invalid. (compression values unspecified)`);
 });

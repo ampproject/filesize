@@ -1,6 +1,6 @@
 {
   "filesize": {
-    "test/config-validation/fixtures/max-size-missing/index.js": {
+    "index.js": {
       "brotli": null
     }
   }

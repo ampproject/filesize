@@ -15,7 +15,7 @@
  */
 
 import { Compression, Context, SizeMapValue, SizeMapValueIndex } from './Condition';
-import { resolve } from 'path';
+import { resolve, isAbsolute } from 'path';
 import { isFile } from '../helpers/fs';
 const bytes = require('bytes');
 
@@ -47,7 +47,12 @@ export default async function validateFileConfig(
     return `Configuration for '${originalPath}' is invalid. (compression values unspecified)`;
   }
 
-  const path = resolve(originalPath);
+  let path: string;
+  if (isAbsolute(originalPath)) {
+    path = resolve(originalPath);
+  } else {
+    path = resolve(context.projectPath, originalPath);
+  }
   if (!(await isFile(path))) {
     return `Configuration for '${originalPath}' is invalid. (path is not a valid file)`;
   }

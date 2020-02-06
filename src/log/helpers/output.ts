@@ -22,13 +22,16 @@ const CURSOR_LEFT = ESC_SEQUENCE + 'G';
 const CURSOR_UP = ESC_SEQUENCE + '1A';
 
 const outputQueue: Array<string> = [];
-let locked: boolean = false;
 
 /**
  * Erase the number of lines from a TTY terminal
  * @param count
  */
 export function erase(count: number): void {
+  if (count <= 0) {
+    return;
+  }
+
   let sequence = '';
   for (let i = 0; i < count; i++) {
     sequence += ERASE_LINE + (i < count - 1 ? CURSOR_UP : '');
@@ -37,7 +40,7 @@ export function erase(count: number): void {
     sequence += CURSOR_LEFT;
   }
 
-  write(sequence, true);
+  write(sequence);
 }
 
 /**
@@ -45,25 +48,22 @@ export function erase(count: number): void {
  * @param callback
  */
 export function exhaust(callback: () => any = () => void 0) {
-  if (!locked) {
-    locked = true;
-    const text: string | undefined = outputQueue.shift();
+  const text: string | undefined = outputQueue.shift();
 
-    if (text) {
-      stdout.write(text, () => {
-        locked = false;
-        if (outputQueue.length > 0) {
-          exhaust(callback);
-        } else {
-          callback();
-        }
-      });
-    }
-    locked = false;
+  if (text) {
+    stdout.write(text, () => {
+      if (outputQueue.length > 0) {
+        exhaust(callback);
+      } else {
+        callback();
+      }
+    });
+  } else {
+    callback();
   }
 }
 
-export function write(content: string, del: boolean = false): void {
+export function write(content: string): void {
   outputQueue.push(content);
   exhaust();
 }

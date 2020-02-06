@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { write } from './output';
 const kleur = require('kleur');
 
 // Disable output colors for test runs.
@@ -35,5 +36,5 @@ export function MakeError(output: string): string {
  * @param output
  */
 export function LogError(output: string): void {
-  console.log(MakeError(output));
+  write(MakeError(output) + '\n');
 }
