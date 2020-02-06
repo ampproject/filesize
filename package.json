@@ -1,6 +1,6 @@
 {
   "name": "@ampproject/filesize",
-  "version": "2.1.1",
+  "version": "3.0.0",
   "description": "Audit the filesize of items specified in package.json.",
   "author": "Kristofer Baxter",
   "license": "Apache-2.0",
@@ -57,7 +57,10 @@
     "yarn": "1.21.1"
   },
   "filesize": {
-    "track": ["./dist/**/*.mjs", "./dist/filesize"],
+    "track": [
+      "./dist/**/*.mjs",
+      "./dist/filesize"
+    ],
     "./dist/filesize": {
       "brotli": "3 kB",
       "gzip": "3.8 kB",
