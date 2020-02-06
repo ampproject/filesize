@@ -16,7 +16,7 @@
 
 import { Compression, Context, SizeMapValue, SizeMapValueIndex } from './Condition';
 import { resolve } from 'path';
-import { isFile } from '../fs';
+import { isFile } from '../helpers/fs';
 const bytes = require('bytes');
 
 /**

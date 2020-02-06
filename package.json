@@ -57,6 +57,7 @@
     "yarn": "1.21.1"
   },
   "filesize": {
+    "track": ["./dist/**/*.mjs", "./dist/filesize"],
     "./dist/filesize": {
       "brotli": "3 kB",
       "gzip": "3.8 kB",

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { readFile } from '../fs';
+import { readFile } from '../helpers/fs';
 import { Context, ConditionFunction, ValidationResponse } from './Condition';
 import { Track } from './Track';
-import { MakeError } from '../log';
+import { MakeError } from '../log/helpers/error';
 import ValidateFileConfig from './File';
-import { isObject } from '../object';
+import { isObject } from '../helpers/object';
 
 /**
  * Parse the content of the 'filesize' items.

@@ -17,8 +17,11 @@
 import { Context, Compression, OrderedCompressionValues, maxSize } from './validation/Condition';
 import { cpus } from 'os';
 import { constants as brotliConstants, brotliCompress, gzip, ZlibOptions } from 'zlib';
-import { readFile } from './fs';
-import { LogError, Report } from './log';
+import { readFile } from './helpers/fs';
+import { LogError } from './log/helpers/error';
+import { Report } from './log/report';
+import { TTYReport } from './log/tty-report';
+import { stdout } from 'process';
 
 const COMPRESSION_CONCURRENCY = cpus().length;
 const BROTLI_OPTIONS = {
@@ -40,11 +43,12 @@ interface CompressionItem {
 
 /**
  * Use the given configuration and actual size to report item filesize.
+ * @param report Optional reporter to update with this value
  * @param item Configuration for an Item
  * @param error Error from compressing an Item
  * @param size actual size for this comparison
  */
-function store(report: Report, context: Context, item: CompressionItem, error: Error | null, size: number): boolean {
+function store(report: Report | null, context: Context, item: CompressionItem, error: Error | null, size: number): boolean {
   if (error !== null) {
     LogError(`Could not compress '${item.path}' with '${item.compression}'.`);
     return false;
@@ -58,7 +62,7 @@ function store(report: Report, context: Context, item: CompressionItem, error: E
   }
   sizeMap[OrderedCompressionValues.indexOf(item.compression)][0] = size;
 
-  report.update(context);
+  report?.update(context);
   if (item.maxSize === undefined) {
     return true;
   }
@@ -70,8 +74,6 @@ function store(report: Report, context: Context, item: CompressionItem, error: E
  * @param context Finalized Valid Context from Configuration
  */
 export default async function compress(context: Context): Promise<boolean> {
-  const report = new Report(context);
-
   /**
    * Compress an Item and report status to the console.
    * @param item Configuration for an Item.
@@ -100,20 +102,26 @@ export default async function compress(context: Context): Promise<boolean> {
     return false;
   }
 
+  let report: Report | null = null;
   const toCompress: Array<CompressionItem> = [];
   for (const [path, sizeMapValue] of context.compressed) {
     for (let iterator: number = 0; iterator < OrderedCompressionValues.length; iterator++) {
+      const compression: Compression = OrderedCompressionValues[iterator] as Compression;
       const [size, maxSize] = sizeMapValue[iterator];
+      if (compression === 'none') {
+        await compressor({ path, compression, maxSize });
+      }
       if (size !== undefined) {
         toCompress.push({
           path,
-          compression: OrderedCompressionValues[iterator] as Compression,
+          compression,
           maxSize,
         });
       }
     }
   }
 
+  report = stdout.isTTY ? new TTYReport(context) : new Report(context);
   let success: boolean = true;
   for (let iterator: number = 0; iterator < toCompress.length; iterator += COMPRESSION_CONCURRENCY) {
     if (iterator === 0) {

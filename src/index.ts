@@ -19,8 +19,8 @@ import Project from './validation/Project';
 import Config from './validation/Config';
 import { Context } from './validation/Condition';
 import compress from './compress';
-import { LogError } from './log';
-import { shutdown } from './process';
+import { LogError } from './log/helpers/error';
+import { shutdown } from './helpers/process';
 
 const args = mri(process.argv.slice(2), {
   alias: { p: 'project' },
