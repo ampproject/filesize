@@ -33,8 +33,8 @@
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "0.21.0",
-    "@rollup/plugin-commonjs": "11.0.1",
-    "@rollup/plugin-node-resolve": "7.0.0",
+    "@rollup/plugin-commonjs": "11.0.2",
+    "@rollup/plugin-node-resolve": "7.1.1",
     "@rollup/plugin-typescript": "3.0.0",
     "@types/bytes": "3.1.0",
     "@types/mri": "1.1.0",
@@ -53,8 +53,8 @@
     "typescript": "3.7.5"
   },
   "volta": {
-    "node": "12.14.1",
-    "yarn": "1.21.1"
+    "node": "12.15.0",
+    "yarn": "1.22.0"
   },
   "filesize": {
     "track": [
