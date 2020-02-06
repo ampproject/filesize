@@ -16,6 +16,8 @@
 
 const kleur = require('kleur');
 
+// Disable output colors for test runs.
+kleur.enabled = !('AVA_PATH' in process.env);
 // Aliases to colors used.
 // @ts-ignore
 const { red } = kleur;

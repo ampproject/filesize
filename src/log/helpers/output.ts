@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { stdout, exit } from 'process';
+import { stdout } from 'process';
 
 const ESC_SEQUENCE = '\u001B[';
 const ERASE_LINE = ESC_SEQUENCE + '2K';
@@ -22,7 +22,7 @@ const CURSOR_LEFT = ESC_SEQUENCE + 'G';
 const CURSOR_UP = ESC_SEQUENCE + '1A';
 
 const outputQueue: Array<string> = [];
-// let locked: boolean = false;
+let locked: boolean = false;
 
 /**
  * Erase the number of lines from a TTY terminal
@@ -45,27 +45,25 @@ export function erase(count: number): void {
  * @param callback
  */
 export function exhaust(callback: () => any = () => void 0) {
-  const text: string | undefined = outputQueue.shift();
+  if (!locked) {
+    locked = true;
+    const text: string | undefined = outputQueue.shift();
 
-  if (text) {
-    stdout.write(text, () => {
-      // locked = false;
-      if (outputQueue.length > 0) {
-        exhaust(callback);
-      } else {
-        callback();
-      }
-    });
+    if (text) {
+      stdout.write(text, () => {
+        locked = false;
+        if (outputQueue.length > 0) {
+          exhaust(callback);
+        } else {
+          callback();
+        }
+      });
+    }
+    locked = false;
   }
 }
 
 export function write(content: string, del: boolean = false): void {
   outputQueue.push(content);
   exhaust();
-}
-
-export function shutdown(code: number) {
-  const callback = () => exit(code);
-
-  exhaust(callback);
 }

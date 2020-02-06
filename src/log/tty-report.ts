@@ -20,6 +20,8 @@ import { Context, OrderedCompressionValues } from '../validation/Condition';
 import { erase, write } from './helpers/output';
 import { ICONS } from './helpers/icons';
 
+// Disable output colors for test runs.
+kleur.enabled = !('AVA_PATH' in process.env);
 // Aliases to colors used.
 // @ts-ignore
 const { red, grey, yellow, green, bold, dim } = kleur;

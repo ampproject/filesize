@@ -18,5 +18,8 @@ import { exit } from 'process';
 import { exhaust } from '../log/helpers/output';
 
 export function shutdown(code: number) {
-  exhaust(() => exit(code));
+  exhaust(() => {
+    console.log('yay');
+    exit(code);
+  });
 }
