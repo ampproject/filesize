@@ -16,17 +16,21 @@
 
 import Project from './validation/Project';
 import Config from './validation/Config';
-import { Context, ItemConfig, CompressionMap } from './validation/Condition';
+import { Context, SizeMap } from './validation/Condition';
 import compress from './compress';
 
-export async function report(project: string): Promise<Map<ItemConfig['path'], CompressionMap>> {
+export async function report(projectPath: string): Promise<[SizeMap, SizeMap]> {
   const conditions = [Project, Config];
   let context: Context = {
-    project,
-    package: '',
-    config: [],
-    track: [],
+    projectPath,
+    packagePath: '',
+    packageContent: '',
     silent: true,
+    originalPaths: new Map(),
+    // Stores the result of compression <path, [...results]>
+    compressed: new Map(),
+    // Stores the basis of comparison.
+    comparison: new Map(),
   };
 
   for (const condition of conditions) {
@@ -36,6 +40,6 @@ export async function report(project: string): Promise<Map<ItemConfig['path'], C
     }
   }
 
-  const { 1: report } = await compress(context);
-  return report;
+  await compress(context);
+  return [context.compressed, context.comparison];
 }

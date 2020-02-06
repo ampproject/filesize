@@ -14,69 +14,71 @@
  * limitations under the License.
  */
 
-import { Compression, ItemConfig } from './Condition';
-import { resolve } from 'path';
-import { isFile } from '../fs';
+import { Compression, Context, SizeMapValue, SizeMapValueIndex } from './Condition';
+import { resolve, isAbsolute } from 'path';
+import { isFile } from '../helpers/fs';
 const bytes = require('bytes');
 
 /**
  * Format input string to a known Compression Enum Value.
  * @param fsValue
  */
-function compressionValue(fsValue: string): [Compression, string | null] {
+function validateCompressionName(fsValue: string): Compression | null {
+  const lowerCaseValue = fsValue.toLowerCase();
   switch (fsValue.toLowerCase()) {
     case 'brotli':
-      return [Compression.BROTLI, null];
     case 'gzip':
-      return [Compression.GZIP, null];
-    case '':
     case 'none':
-      return [Compression.NONE, null];
+      return lowerCaseValue as Compression;
+    case '':
+      return 'none';
     default:
-      return [Compression.NONE, `Invalid compression value '${fsValue}'`];
+      return null;
   }
 }
 
-export default async function ValidateFileConfig(
+export default async function validateFileConfig(
   originalPath: string,
-  index: number,
   compressionConfig: { [key: string]: string },
-): Promise<{ success: boolean; config: Array<ItemConfig> | null; error: string | null }> {
+  context: Context,
+): Promise<string | null> {
   const entries = Object.entries(compressionConfig);
   if (entries.length === 0) {
-    return {
-      success: false,
-      config: [],
-      error: `Configuration for ${originalPath ? `'${originalPath}'` : `#${index}`} is invalid. (compression values unspecified)`,
-    };
+    return `Configuration for '${originalPath}' is invalid. (compression values unspecified)`;
   }
 
-  const path = resolve(originalPath);
-  const config: Array<ItemConfig> = [];
+  let path: string;
+  if (isAbsolute(originalPath)) {
+    path = resolve(originalPath);
+  } else {
+    path = resolve(context.projectPath, originalPath);
+  }
+  if (!(await isFile(path))) {
+    return `Configuration for '${originalPath}' is invalid. (path is not a valid file)`;
+  }
+
   for (const [configKey, configValue] of entries) {
-    const [compression, compressionError] = compressionValue(configKey);
-    const maxSize = bytes(configValue);
-    const invalidValue = [await isFile(path), compressionError === null, maxSize > 0].findIndex(item => item === false);
-    const valueErrorMapping = ['(path is not a valid file)', `(${compressionError})`, '(size unspecified)'];
-    if (invalidValue >= 0) {
-      return {
-        success: false,
-        config: null,
-        error: `Configuration for ${originalPath ? `'${originalPath}'` : `#${index}`} is invalid. ${valueErrorMapping[invalidValue]}`,
-      };
+    const compression: Compression | null = validateCompressionName(configKey);
+    if (compression === null) {
+      return `Configuration for '${originalPath}' is invalid. (Invalid compression value '${configKey}')`;
     }
 
-    config.push({
-      originalPath,
-      path,
-      compression,
-      maxSize,
-    });
-  }
+    const maxSize = bytes(configValue);
+    if (maxSize === null || maxSize < 0) {
+      return `Configuration for '${originalPath}' is invalid. (size unspecified)`;
+    }
 
-  return {
-    success: true,
-    config,
-    error: null,
-  };
+    let compressedItem: SizeMapValue | undefined = context.compressed.get(path);
+    if (!compressedItem) {
+      compressedItem = [
+        [undefined, undefined],
+        [undefined, undefined],
+        [undefined, undefined],
+      ];
+    }
+    compressedItem[SizeMapValueIndex[compression]] = [null, maxSize];
+    context.compressed.set(path, compressedItem);
+    context.originalPaths.set(path, originalPath);
+  }
+  return null;
 }

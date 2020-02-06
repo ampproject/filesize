@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-import { Context, ItemConfig, Compression, OrderedCompressionMap, CompressionMap } from './validation/Condition';
+import { Context, Compression, OrderedCompressionValues, maxSize } from './validation/Condition';
 import { cpus } from 'os';
 import { constants as brotliConstants, brotliCompress, gzip, ZlibOptions } from 'zlib';
-import { readFile } from './fs';
-import { LogError, LogReport } from './log';
+import { readFile } from './helpers/fs';
+import { LogError } from './log/helpers/error';
+import { Report } from './log/report';
+import { TTYReport } from './log/tty-report';
+import { stdout } from 'process';
 
 const COMPRESSION_CONCURRENCY = cpus().length;
 const BROTLI_OPTIONS = {
@@ -31,81 +34,105 @@ const BROTLI_OPTIONS = {
 const GZIP_OPTIONS: ZlibOptions = {
   level: 9,
 };
-const reported: Map<ItemConfig['path'], CompressionMap> = new Map();
 
-/**
- * Pre-populate the report map
- * @param configurations
- */
-function initReport(configurations: Context['config']) {
-  for (const config of configurations) {
-    if (!reported.get(config.originalPath)) {
-      reported.set(config.originalPath, new Map(OrderedCompressionMap));
-    }
-  }
+interface CompressionItem {
+  path: string;
+  compression: Compression;
+  maxSize: maxSize;
 }
 
 /**
  * Use the given configuration and actual size to report item filesize.
+ * @param report Optional reporter to update with this value
  * @param item Configuration for an Item
  * @param error Error from compressing an Item
  * @param size actual size for this comparison
  */
-function store(item: ItemConfig, error: Error | null, size: number): boolean {
+function store(report: Report | null, context: Context, item: CompressionItem, error: Error | null, size: number): boolean {
   if (error !== null) {
     LogError(`Could not compress '${item.path}' with '${item.compression}'.`);
     return false;
   }
 
-  let compressionMap: CompressionMap | undefined;
-  if ((compressionMap = reported.get(item.originalPath))) {
-    compressionMap.set(item.compression, [size, item.maxSize]);
+  // Store the size of the item in the compression map.
+  const sizeMap = context.compressed.get(item.path);
+  if (sizeMap === undefined) {
+    LogError(`Could not find item '${item.path}' with '${item.compression}' in compression map.`);
+    return false;
+  }
+  sizeMap[OrderedCompressionValues.indexOf(item.compression)][0] = size;
+
+  report?.update(context);
+  if (item.maxSize === undefined) {
+    return true;
   }
   return size < item.maxSize;
-}
-
-/**
- * Compress an Item and report status to the console.
- * @param item Configuration for an Item.
- */
-async function compressor(item: ItemConfig): Promise<boolean> {
-  const contents = await readFile(item.path);
-  if (contents) {
-    const buffer = Buffer.from(contents, 'utf8');
-
-    switch (item.compression) {
-      case Compression.BROTLI:
-        return new Promise(resolve =>
-          brotliCompress(buffer, BROTLI_OPTIONS, (error: Error | null, result: Buffer) => resolve(store(item, error, result.byteLength))),
-        );
-      case Compression.GZIP:
-        return new Promise(resolve =>
-          gzip(buffer, GZIP_OPTIONS, (error: Error | null, result: Buffer) => resolve(store(item, error, result.byteLength))),
-        );
-      case Compression.NONE:
-      default:
-        return store(item, null, buffer.byteLength);
-    }
-  }
-
-  return false;
 }
 
 /**
  * Given a context, compress all Items within splitting work eagly per cpu core to achieve some concurrency.
  * @param context Finalized Valid Context from Configuration
  */
-export default async function compress(context: Context): Promise<[boolean, Map<ItemConfig['path'], CompressionMap>]> {
-  initReport(context.config);
+export default async function compress(context: Context): Promise<boolean> {
+  /**
+   * Compress an Item and report status to the console.
+   * @param item Configuration for an Item.
+   */
+  async function compressor(item: CompressionItem): Promise<boolean> {
+    const contents = await readFile(item.path);
+    if (contents) {
+      const buffer = Buffer.from(contents, 'utf8');
 
+      switch (item.compression) {
+        case 'brotli':
+          return new Promise(resolve =>
+            brotliCompress(buffer, BROTLI_OPTIONS, (error: Error | null, result: Buffer) =>
+              resolve(store(report, context, item, error, result.byteLength)),
+            ),
+          );
+        case 'gzip':
+          return new Promise(resolve =>
+            gzip(buffer, GZIP_OPTIONS, (error: Error | null, result: Buffer) => resolve(store(report, context, item, error, result.byteLength))),
+          );
+        default:
+          return store(report, context, item, null, buffer.byteLength);
+      }
+    }
+
+    return false;
+  }
+
+  let report: Report | null = null;
+  const toCompress: Array<CompressionItem> = [];
+  for (const [path, sizeMapValue] of context.compressed) {
+    for (let iterator: number = 0; iterator < OrderedCompressionValues.length; iterator++) {
+      const compression: Compression = OrderedCompressionValues[iterator] as Compression;
+      const [size, maxSize] = sizeMapValue[iterator];
+      if (compression === 'none') {
+        await compressor({ path, compression, maxSize });
+      }
+      if (size !== undefined) {
+        toCompress.push({
+          path,
+          compression,
+          maxSize,
+        });
+      }
+    }
+  }
+
+  report = stdout.isTTY ? new TTYReport(context) : new Report(context);
   let success: boolean = true;
-  for (let iterator: number = 0; iterator < context.config.length; iterator += COMPRESSION_CONCURRENCY) {
-    let itemsSuccessful = await Promise.all(context.config.slice(iterator, iterator + COMPRESSION_CONCURRENCY).map(compressor));
+  for (let iterator: number = 0; iterator < toCompress.length; iterator += COMPRESSION_CONCURRENCY) {
+    if (iterator === 0) {
+      report.update(context);
+    }
+    let itemsSuccessful = await Promise.all(toCompress.slice(iterator, iterator + COMPRESSION_CONCURRENCY).map(compressor));
     if (itemsSuccessful.includes(false)) {
       success = false;
     }
   }
 
-  LogReport(context, reported);
-  return [success, reported];
+  report.end();
+  return success;
 }

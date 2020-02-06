@@ -17,14 +17,17 @@
 import test from 'ava';
 import Project from '../../src/validation/Project';
 import { resolve } from 'path';
+import { Context } from '../../src/validation/Condition';
 
 test('valid directory should pass', async t => {
-  const context = {
-    project: 'test/project-validation/fixtures/contains-package-json',
-    package: '',
-    config: [],
+  const context: Context = {
+    packagePath: '',
+    projectPath: 'test/project-validation/fixtures/contains-package-json',
+    packageContent: '',
+    originalPaths: new Map(),
+    compressed: new Map(),
+    comparison: new Map(),
     silent: false,
-    track: [],
   };
   const message = await Project(context)();
 
@@ -33,26 +36,30 @@ test('valid directory should pass', async t => {
 
 test('invalid directory should fail', async t => {
   const context = {
-    project: 'test/project-validation/fixtures-invalid',
-    package: '',
-    config: [],
+    packagePath: '',
+    projectPath: 'test/project-validation/fixtures-invalid',
+    packageContent: '',
+    originalPaths: new Map(),
+    compressed: new Map(),
+    comparison: new Map(),
     silent: false,
-    track: [],
   };
   const message = await Project(context)();
 
-  t.is(message, `error project specified '${context.project}' doesn't exist, is this a valid project?`);
+  t.is(message, `error project specified '${context.projectPath}' doesn't exist, is this a valid project?`);
 });
 
 test('directory missing package.json should fail', async t => {
   const context = {
-    project: 'test/project-validation/fixtures/missing-package-json',
-    package: '',
-    config: [],
+    packagePath: '',
+    projectPath: 'test/project-validation/fixtures/missing-package-json',
+    packageContent: '',
+    originalPaths: new Map(),
+    compressed: new Map(),
+    comparison: new Map(),
     silent: false,
-    track: [],
   };
   const message = await Project(context)();
 
-  t.is(message, `error Missing '${resolve(context.project, 'package.json')}', is this a valid project?`);
+  t.is(message, `error Missing '${resolve(context.projectPath, 'package.json')}', is this a valid project?`);
 });

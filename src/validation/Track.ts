@@ -16,6 +16,7 @@
 
 import { Context, ValidationResponse } from './Condition';
 import glob from 'fast-glob';
+import { resolve } from 'path';
 
 /**
  * Use 'fast-glob' to find files requested to track from configuration.
@@ -25,7 +26,18 @@ import glob from 'fast-glob';
 export async function Track(context: Context, json: any): Promise<ValidationResponse> {
   if ('track' in json && Array.isArray(json.track)) {
     const entries: Array<string> = await glob(json.track);
-    context.track.push(...entries);
+
+    // glob ensures the results are valid files.
+    for (const entry of entries) {
+      const path = resolve(entry);
+
+      context.compressed.set(path, [
+        [null, undefined],
+        [null, undefined],
+        [null, undefined],
+      ]);
+      context.originalPaths.set(path, entry);
+    }
   }
 
   return null;

@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 The AMP HTML Authors. All Rights Reserved.
+ * Copyright 2019 The AMP HTML Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-import test from 'ava';
-import Config from '../../src/validation/Config';
+import { exit } from 'process';
+import { exhaust } from '../log/helpers/output';
 
-test('missing package.json should fail', async t => {
-  const context = {
-    package: 'test/config-validation/fixtures/compression-array/package.json',
-    config: [],
-    project: 'test/config-validation/fixtures/compression-array',
-    silent: false,
-    track: [],
-  };
-  const message = await Config(context)();
-
-  t.is(message, null);
-});
+export function shutdown(code: number) {
+  exhaust(() => {
+    exit(code);
+  });
+}

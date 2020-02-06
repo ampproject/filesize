@@ -17,7 +17,8 @@
 import test from 'ava';
 import { exec } from 'child_process';
 import { report } from '../../src/api';
-import { CompressionMap } from '../../src/validation/Condition';
+import { SizeMapValue, SizeMap } from '../../src/validation/Condition';
+import { resolve } from 'path';
 
 test.cb('item under requested filesize limit passes', t => {
   const executeFailure = exec('./dist/filesize -p=test/end-to-end/fixtures/successful');
@@ -31,12 +32,13 @@ test.cb('item under requested filesize limit passes', t => {
 test('item under requested filesize limit passes from API', async t => {
   const toReport = 'test/end-to-end/fixtures/successful';
 
-  const sizes: CompressionMap = new Map([
-    ['brotli', [3410, 3584]],
-    ['gzip', [3737, 4096]],
-    ['none', [9327, 10240]],
-  ]);
-  const expected: Map<string, CompressionMap> = new Map([['test/end-to-end/fixtures/successful/index.js', sizes]]);
+  const sizes: SizeMapValue = [
+    [3410, 3584], // brotli
+    [3737, 4096], // gzip
+    [9327, 10240], // none
+  ];
+  const expected: SizeMap = new Map();
+  expected.set(resolve('test/end-to-end/fixtures/successful/index.js'), sizes);
   const results = await report(toReport);
-  t.deepEqual(results, expected);
+  t.deepEqual(results[0], expected);
 });

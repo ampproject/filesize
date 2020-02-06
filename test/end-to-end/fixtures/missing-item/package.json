@@ -1,6 +1,6 @@
 {
   "filesize": {
-    "test/end-to-end/fixtures/missing-item/index.js": {
+    "index.js": {
       "none": "500 kB"
     }
   }

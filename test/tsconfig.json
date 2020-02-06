@@ -16,7 +16,8 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "incremental": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
   },
   "include": [
     "*.ts",
