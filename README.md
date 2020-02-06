@@ -32,6 +32,20 @@ Each file (key in the filesize object) must include an object with key/value pai
 
 Optionally one can target a different project directory via the `p` parameter `yarn filesize -p={PATH}`.
 
+### Track Resource Size
+
+This utility now also supports tracking filesizes without enforcing a max limit. To use this feature add a `track` key to the `filesize` entry.
+
+```json
+{
+  "filesize": {
+    "track": ["./dist/**/*.mjs"],
+  }
+}
+```
+
+These values will be added to the output report for all comression types.
+
 ## Security disclosures
 
 The AMP Project accepts responsible security disclosures through the [Google Application Security program](https://www.google.com/about/appsecurity/).
