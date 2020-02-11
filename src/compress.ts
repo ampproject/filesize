@@ -121,7 +121,7 @@ export default async function compress(context: Context): Promise<boolean> {
     }
   }
 
-  report = stdout.isTTY ? new TTYReport(context) : new Report(context);
+  report = stdout.isTTY && toCompress.length < 30 ? new TTYReport(context) : new Report(context);
   let success: boolean = true;
   for (let iterator: number = 0; iterator < toCompress.length; iterator += COMPRESSION_CONCURRENCY) {
     if (iterator === 0) {

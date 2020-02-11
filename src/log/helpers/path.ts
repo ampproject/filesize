@@ -17,7 +17,7 @@
 import { Context } from '../../validation/Condition';
 
 const SPACE_AFTER_PATH = 2;
-const MAX_ALLOWED_PATH_LENGTH = 30;
+const MAX_ALLOWED_PATH_LENGTH = 50;
 
 function allowedPathLength(path: string): number {
   return Math.min(path.length, MAX_ALLOWED_PATH_LENGTH) + SPACE_AFTER_PATH;
