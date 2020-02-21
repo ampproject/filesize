@@ -47,6 +47,8 @@ export const SizeMapValueIndex = {
 };
 export type SizeMap = Map<path, SizeMapValue>;
 
+export type FileContentsMap = Map<path, string>;
+
 export interface Context {
   projectPath: string;
   packagePath: string;
@@ -57,4 +59,8 @@ export interface Context {
   compressed: SizeMap;
   // Stores the basis of comparison.
   comparison: SizeMap;
+  // Allows the API to specify a method that alters content before analysis.
+  fileModifier: ((contents: string) => string) | null;
+  // Stores the contents of files, to avoid reading from disk per compression type.
+  fileContents: FileContentsMap;
 }

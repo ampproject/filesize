@@ -29,6 +29,8 @@ test('including trackable items should succeed', async t => {
     compressed: new Map(),
     comparison: new Map(),
     silent: false,
+    fileModifier: null,
+    fileContents: new Map(),
   };
   const message = await Config(context)();
 
@@ -44,6 +46,12 @@ test('trackable items uses glob to find files', async t => {
   const expected: SizeMap = new Map();
   expected.set(resolve('test/config-validation/fixtures/track-standalone/index.js'), sizes);
 
-  const results = await report('test/config-validation/fixtures/track-standalone');
-  t.deepEqual(results[0], expected);
+  const values = report('test/config-validation/fixtures/track-standalone', null);
+  let next = await values.next();
+  let results: SizeMap | undefined = undefined;
+  while (!next.done) {
+    results = next.value[0];
+    next = await values.next();
+  }
+  t.deepEqual(results, expected);
 });

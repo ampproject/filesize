@@ -39,6 +39,34 @@ test('item under requested filesize limit passes from API', async t => {
   ];
   const expected: SizeMap = new Map();
   expected.set(resolve('test/end-to-end/fixtures/successful/index.js'), sizes);
-  const results = await report(toReport);
-  t.deepEqual(results[0], expected);
+
+  const values = report(toReport, null);
+  let next = await values.next();
+  let results: SizeMap | undefined = undefined;
+  while (!next.done) {
+    results = next.value[0];
+    next = await values.next();
+  }
+  t.deepEqual(results, expected);
+});
+
+test('item under requested filesize limit passes from API, with replacement', async t => {
+  const toReport = 'test/end-to-end/fixtures/successful';
+
+  const sizes: SizeMapValue = [
+    [3401, 3584], // brotli
+    [3731, 4096], // gzip
+    [9317, 10240], // none
+  ];
+  const expected: SizeMap = new Map();
+  expected.set(resolve('test/end-to-end/fixtures/successful/index.js'), sizes);
+
+  const values = report(toReport, content => content.replace(new RegExp('preact.umd.js.map', 'g'), 'FOO.map'));
+  let next = await values.next();
+  let results: SizeMap | undefined = undefined;
+  while (!next.done) {
+    results = next.value[0];
+    next = await values.next();
+  }
+  t.deepEqual(results, expected);
 });

@@ -19,7 +19,10 @@ import Config from './validation/Config';
 import { Context, SizeMap } from './validation/Condition';
 import compress from './compress';
 
-export async function report(projectPath: string): Promise<[SizeMap, SizeMap]> {
+export async function* report(
+  projectPath: string,
+  fileModifier: ((contents: string) => string) | null,
+): AsyncGenerator<[SizeMap, SizeMap]> {
   const conditions = [Project, Config];
   let context: Context = {
     projectPath,
@@ -31,6 +34,8 @@ export async function report(projectPath: string): Promise<[SizeMap, SizeMap]> {
     compressed: new Map(),
     // Stores the basis of comparison.
     comparison: new Map(),
+    fileModifier,
+    fileContents: new Map(),
   };
 
   for (const condition of conditions) {
@@ -40,6 +45,11 @@ export async function report(projectPath: string): Promise<[SizeMap, SizeMap]> {
     }
   }
 
-  await compress(context);
+  const compressResults = compress(context, false);
+  let nextResult = await compressResults.next();
+  while (!nextResult.done) {
+    yield [context.compressed, context.comparison];
+    nextResult = await compressResults.next();
+  }
   return [context.compressed, context.comparison];
 }

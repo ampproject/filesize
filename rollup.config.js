@@ -18,20 +18,6 @@ import resolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
 import commonjs from '@rollup/plugin-commonjs';
 import compiler from '@ampproject/rollup-plugin-closure-compiler';
-import MagicString from 'magic-string';
-
-function makeExecutable() {
-  return {
-    name: 'make-executable',
-    renderChunk(code, chunkInfo) {
-      if (chunkInfo.fileName === 'filesize') {
-        const magicString = new MagicString(code);
-        magicString.prepend('#!/usr/bin/env node\n\n');
-        return { code: magicString.toString(), map: magicString.generateMap({ hires: true }) };
-      }
-    },
-  };
-}
 
 const external = ['os', 'zlib', 'path', 'fs', 'stream', 'util', 'events', 'fast-glob', 'process'];
 const plugins = executable => [
@@ -39,7 +25,6 @@ const plugins = executable => [
   commonjs({ include: 'node_modules/**' }),
   typescript({ tsconfig: 'src/tsconfig.json', include: '**/*.ts', exclude: 'dist/**/*.ts' }),
   executable ? compiler() : null,
-  executable ? makeExecutable() : null,
 ];
 
 export default [
@@ -49,15 +34,16 @@ export default [
       file: 'dist/filesize',
       format: 'cjs',
       sourcemap: true,
+      banner: '#!/usr/bin/env node',
     },
     external,
     plugins: plugins(true),
   },
   {
-    input: 'src/index.ts',
+    input: 'src/api.ts',
     output: {
-      file: 'dist/index.js',
-      format: 'cjs',
+      file: 'dist/api.mjs',
+      format: 'esm',
       sourcemap: true,
     },
     external,
@@ -66,8 +52,8 @@ export default [
   {
     input: 'src/api.ts',
     output: {
-      file: 'dist/api.mjs',
-      format: 'esm',
+      file: 'dist/api.js',
+      format: 'cjs',
       sourcemap: true,
     },
     external,

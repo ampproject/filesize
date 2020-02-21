@@ -38,7 +38,11 @@ test.cb('too large valid item fails with exit code 6', t => {
 
 test('item with missing file throws exception from API', async t => {
   try {
-    await report('test/end-to-end/fixtures/missing-item');
+    const values = report('test/end-to-end/fixtures/missing-item', null);
+    let next = await values.next();
+    while (!next.done) {
+      next = await values.next();
+    }
   } catch (e) {
     t.is(e, `Configuration for 'index.js' is invalid. (path is not a valid file)`);
   }

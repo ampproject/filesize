@@ -28,6 +28,8 @@ test('valid directory should pass', async t => {
     compressed: new Map(),
     comparison: new Map(),
     silent: false,
+    fileModifier: null,
+    fileContents: new Map(),
   };
   const message = await Project(context)();
 
@@ -43,6 +45,8 @@ test('invalid directory should fail', async t => {
     compressed: new Map(),
     comparison: new Map(),
     silent: false,
+    fileModifier: null,
+    fileContents: new Map(),
   };
   const message = await Project(context)();
 
@@ -58,6 +62,8 @@ test('directory missing package.json should fail', async t => {
     compressed: new Map(),
     comparison: new Map(),
     silent: false,
+    fileModifier: null,
+    fileContents: new Map(),
   };
   const message = await Project(context)();
 
