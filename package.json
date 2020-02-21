@@ -65,7 +65,7 @@
       "gzip": "3.8 kB",
       "none": "20 kB"
     },
-    "./dist/index.js": {
+    "./dist/api.js": {
       "brotli": "5 kB",
       "gzip": "6.5 kB"
     },
