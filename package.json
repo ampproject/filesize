@@ -4,7 +4,7 @@
   "description": "Audit the filesize of items specified in package.json.",
   "author": "Kristofer Baxter",
   "license": "Apache-2.0",
-  "main": "dist/filesize",
+  "main": "dist/api.js",
   "module": "dist/api.mjs",
   "files": [
     "dist"
@@ -88,5 +88,8 @@
       "pre-push": "yarn npm-run-all clean build test",
       "pre-commit": "lint-staged"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
