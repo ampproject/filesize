@@ -43,6 +43,8 @@ const args = mri(process.argv.slice(2), {
     compressed: new Map(),
     // Stores the basis of comparison.
     comparison: new Map(),
+    fileModifier: null,
+    fileContents: new Map(),
   };
 
   let errorOccured: boolean = false;
@@ -56,7 +58,17 @@ const args = mri(process.argv.slice(2), {
   }
 
   if (!errorOccured) {
-    if (!(await compress(context))) {
+    const compressResults = compress(context, false);
+    let successful: boolean = true;
+    let nextResult: IteratorResult<boolean, boolean> = await compressResults.next();
+    while (!nextResult.done) {
+      if (!nextResult.value) {
+        successful = false;
+      }
+      nextResult = await compressResults.next();
+    }
+
+    if (!successful) {
       shutdown(6);
     }
   }
