@@ -49,7 +49,7 @@
     "rollup": "1.31.1",
     "shx": "0.3.2",
     "tslib": "1.11.0",
-    "typescript": "3.7.5"
+    "typescript": "3.8.2"
   },
   "volta": {
     "node": "12.16.1",
