@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "bytes": "3.1.0",
-    "fast-glob": "3.1.1",
+    "fast-glob": "3.2.2",
     "kleur": "3.0.3",
     "mri": "1.1.4"
   },
@@ -38,7 +38,7 @@
     "@rollup/plugin-typescript": "3.0.0",
     "@types/bytes": "3.1.0",
     "@types/mri": "1.1.0",
-    "@types/node": "12.12.27",
+    "@types/node": "12.12.28",
     "ava": "3.3.0",
     "husky": "4.2.3",
     "lint-staged": "10.0.7",
@@ -48,11 +48,11 @@
     "rimraf": "3.0.2",
     "rollup": "1.31.1",
     "shx": "0.3.2",
-    "tslib": "1.10.0",
+    "tslib": "1.11.0",
     "typescript": "3.7.5"
   },
   "volta": {
-    "node": "12.16.0",
+    "node": "12.16.1",
     "yarn": "1.22.0"
   },
   "filesize": {
