@@ -4,6 +4,8 @@
 
 Uses native compression from Node Core, attempts to parallelize compression work across available CPUs, and requires Node >= `10.16`.
 
+![alt-text](https://github.com/ampproject/filesize/raw/master/src/preview.gif)
+
 ## Installation
 
 ```bash
