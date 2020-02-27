@@ -48,7 +48,7 @@
     "rimraf": "3.0.2",
     "rollup": "1.31.1",
     "shx": "0.3.2",
-    "tslib": "1.11.0",
+    "tslib": "1.11.1",
     "typescript": "3.8.2"
   },
   "volta": {
