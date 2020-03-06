@@ -35,7 +35,7 @@
     "@ampproject/rollup-plugin-closure-compiler": "0.24.0",
     "@rollup/plugin-commonjs": "11.0.2",
     "@rollup/plugin-node-resolve": "7.1.1",
-    "@rollup/plugin-typescript": "3.0.0",
+    "@rollup/plugin-typescript": "3.1.1",
     "@types/bytes": "3.1.0",
     "@types/mri": "1.1.0",
     "@types/node": "12.12.29",
