@@ -4,7 +4,7 @@
 
 Uses native compression from Node Core, attempts to parallelize compression work across available CPUs, and requires Node >= `10.16`.
 
-![Interactive UI Processing Large Files](https://github.com/ampproject/filesize/raw/master/preview.gif)
+![Interactive UI Processing Large Files](https://github.com/ampproject/filesize/raw/master/.github/preview.gif)
 
 ## Installation
 
@@ -54,7 +54,7 @@ The AMP Project accepts responsible security disclosures through the [Google App
 
 ## Code of conduct
 
-The AMP Project strives for a positive and growing project community that provides a safe environment for everyone.  All members, committers and volunteers in the community are required to act according to the [code of conduct](CODE_OF_CONDUCT.md).
+The AMP Project strives for a positive and growing project community that provides a safe environment for everyone.  All members, committers and volunteers in the community are required to act according to the [code of conduct](.github/CODE_OF_CONDUCT.md).
 
 ## License
 
