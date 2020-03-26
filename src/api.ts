@@ -85,6 +85,7 @@ export async function* serialReport(
       const sizes = context.compressed.get(filePath);
       if (sizes !== undefined && sizes?.[0][0] && sizes?.[1][0] && sizes?.[2][0]) {
         yield [filePath, sizes?.[0][0], sizes?.[1][0], sizes?.[2][0]];
+        paths.delete(filePath);
       }
     }
     next = await compressResults.next();
