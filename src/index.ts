@@ -15,12 +15,15 @@
  */
 
 import mri from 'mri';
+import { stdout } from 'process';
 import Project from './validation/Project';
 import Config from './validation/Config';
 import { Context } from './validation/Condition';
-import compress from './compress';
+import compress, { CompressionItem, findItemsToCompress } from './compress';
 import { LogError } from './log/helpers/error';
 import { shutdown } from './helpers/process';
+import { Report } from './log/report';
+import { TTYReport } from './log/tty-report';
 
 const args = mri(process.argv.slice(2), {
   alias: { p: 'project' },
@@ -30,7 +33,7 @@ const args = mri(process.argv.slice(2), {
 /**
  * Read the configuration from the specified project, validate it, perform requested compression, and report the results.
  */
-(async function() {
+(async function () {
   const { project: projectPath, silent } = args;
   const conditions = [Project, Config];
   const context: Context = {
@@ -58,15 +61,19 @@ const args = mri(process.argv.slice(2), {
   }
 
   if (!errorOccured) {
-    const compressResults = compress(context, false);
-    let successful: boolean = true;
-    let nextResult: IteratorResult<boolean, boolean> = await compressResults.next();
-    while (!nextResult.done) {
-      if (!nextResult.value) {
-        successful = false;
-      }
-      nextResult = await compressResults.next();
-    }
+    const toCompress: Array<CompressionItem> = await findItemsToCompress(context, true);
+    const report: Report | null = stdout.isTTY && toCompress.length < 30 ? new TTYReport(context) : new Report(context);
+    const successful = await compress(context, toCompress, report);
+
+    // let successful: boolean = true;
+    // let nextResult: Promise<IteratorResult<boolean | null, boolean>> = compressResults.next();
+    // while (!nextResult.done) {
+    //   if (!nextResult.value) {
+    //     successful = false;
+    //   }
+    //   nextResult = compressResults.next();
+    //   // nextResult = await compressResults.next();
+    // }
 
     if (!successful) {
       shutdown(6);

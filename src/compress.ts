@@ -16,93 +16,18 @@
 
 import { Context, Compression, OrderedCompressionValues, maxSize } from './validation/Condition';
 import { cpus } from 'os';
-import { constants as brotliConstants, brotliCompress, gzip, ZlibOptions } from 'zlib';
 import { readFile } from './helpers/fs';
-import { LogError } from './log/helpers/error';
 import { Report } from './log/report';
-import { TTYReport } from './log/tty-report';
-import { stdout } from 'process';
+// import { TTYReport } from './log/tty-report';
+// import { stdout } from 'process';
+import { compressor } from './worker';
 
 const COMPRESSION_CONCURRENCY = cpus().length;
-const BROTLI_OPTIONS = {
-  params: {
-    [brotliConstants.BROTLI_PARAM_MODE]: brotliConstants.BROTLI_DEFAULT_MODE,
-    [brotliConstants.BROTLI_PARAM_QUALITY]: brotliConstants.BROTLI_MAX_QUALITY,
-    [brotliConstants.BROTLI_PARAM_SIZE_HINT]: 0,
-  },
-};
-const GZIP_OPTIONS: ZlibOptions = {
-  level: 9,
-};
 
-interface CompressionItem {
+export interface CompressionItem {
   path: string;
   compression: Compression;
   maxSize: maxSize;
-}
-
-/**
- * Use the given configuration and actual size to report item filesize.
- * @param report Optional reporter to update with this value
- * @param item Configuration for an Item
- * @param error Error from compressing an Item
- * @param size actual size for this comparison
- */
-function store(
-  report: Report | null,
-  context: Context,
-  item: CompressionItem,
-  error: Error | null,
-  size: number,
-): boolean {
-  if (error !== null) {
-    LogError(`Could not compress '${item.path}' with '${item.compression}'.`);
-    return false;
-  }
-
-  // Store the size of the item in the compression map.
-  const sizeMap = context.compressed.get(item.path);
-  if (sizeMap === undefined) {
-    LogError(`Could not find item '${item.path}' with '${item.compression}' in compression map.`);
-    return false;
-  }
-  sizeMap[OrderedCompressionValues.indexOf(item.compression)][0] = size;
-
-  report?.update(context);
-  if (item.maxSize === undefined) {
-    return true;
-  }
-  return size < item.maxSize;
-}
-
-/**
- * Compress an Item and report status to the console.
- * @param item Configuration for an Item.
- */
-async function compressor(report: Report | null, context: Context, item: CompressionItem): Promise<boolean> {
-  const contents = context.fileContents.get(item.path);
-  if (contents) {
-    const buffer = Buffer.from(contents, 'utf8');
-
-    switch (item.compression) {
-      case 'brotli':
-        return new Promise(resolve =>
-          brotliCompress(buffer, BROTLI_OPTIONS, (error: Error | null, result: Buffer) =>
-            resolve(store(report, context, item, error, result.byteLength)),
-          ),
-        );
-      case 'gzip':
-        return new Promise(resolve =>
-          gzip(buffer, GZIP_OPTIONS, (error: Error | null, result: Buffer) =>
-            resolve(store(report, context, item, error, result.byteLength)),
-          ),
-        );
-      default:
-        return store(report, context, item, null, buffer.byteLength);
-    }
-  }
-
-  return false;
 }
 
 /**
@@ -125,7 +50,7 @@ async function storeOriginalFileContents(context: Context, path: string): Promis
  * @param context
  * @param findDefaultSize
  */
-async function findItemsToCompress(context: Context, findDefaultSize: boolean): Promise<Array<CompressionItem>> {
+export async function findItemsToCompress(context: Context, findDefaultSize: boolean): Promise<Array<CompressionItem>> {
   const toCompress: Array<CompressionItem> = [];
   for (const [path, sizeMapValue] of context.compressed) {
     for (let iterator: number = 0; iterator < OrderedCompressionValues.length; iterator++) {
@@ -133,7 +58,7 @@ async function findItemsToCompress(context: Context, findDefaultSize: boolean): 
       const [size, maxSize] = sizeMapValue[iterator];
       await storeOriginalFileContents(context, path);
       if (findDefaultSize && compression === 'none') {
-        await compressor(null, context, { path, compression, maxSize });
+        await compressor(context, null, { path, compression, maxSize });
       }
       if (size !== undefined) {
         toCompress.push({
@@ -152,27 +77,90 @@ async function findItemsToCompress(context: Context, findDefaultSize: boolean): 
  * Given a context, compress all Items within splitting work eagly per cpu core to achieve some concurrency.
  * @param context Finalized Valid Context from Configuration
  */
-export default async function* compress(context: Context, outputReport: boolean): AsyncGenerator<boolean, boolean> {
-  const toCompress: Array<CompressionItem> = await findItemsToCompress(context, true);
-  const report: Report | null = outputReport
-    ? null
-    : stdout.isTTY && toCompress.length < 30
-    ? new TTYReport(context)
-    : new Report(context);
-  let success: boolean = true;
-
-  for (let iterator: number = 0; iterator < toCompress.length; iterator += COMPRESSION_CONCURRENCY) {
-    if (iterator === 0) {
-      report?.update(context);
-    }
-    let itemsSuccessful = await Promise.all(
-      toCompress.slice(iterator, iterator + COMPRESSION_CONCURRENCY).map(item => compressor(report, context, item)),
-    );
-    if (itemsSuccessful.includes(false)) {
-      success = false;
-    }
-    yield success;
+export default async function compress(
+  context: Context,
+  toCompress: Array<CompressionItem>,
+  report: Report | null,
+): Promise<boolean> {
+  let success = true;
+  if (toCompress.length === 0) {
+    return success;
   }
+
+  const returnable: Array<Promise<boolean>> = [];
+  const executing: Array<Promise<boolean>> = [];
+  for (const item of toCompress) {
+    const promise: Promise<boolean> = Promise.resolve().then(() => compressor(context, report, item));
+    returnable.push(promise);
+
+    if (COMPRESSION_CONCURRENCY <= toCompress.length) {
+      const execute: any = promise.then((successful) => {
+        if (!successful) {
+          success = successful;
+        }
+        executing.splice(executing.indexOf(execute), 1);
+      });
+      executing.push(execute);
+      if (executing.length >= COMPRESSION_CONCURRENCY) {
+        await Promise.race(executing);
+      }
+    }
+  }
+  await Promise.all(returnable);
+
+  return success;
+
+  // const toCompressPromises: Array<Promise<boolean>> = toCompress.map(item => compressor(context, report, item));
+  // let success = true;
+  // let active = 0;
+  // let index = 0;
+
+  // report?.update(context);
+  // do {
+  //   const compressionPromisesToStart = toCompressPromises.slice(index, index + (COMPRESSION_CONCURRENCY - active));
+  //   const fastestResult = await Promise.race(compressionPromisesToStart);
+
+  //   if (fastestResult === false) {
+  //     success = false;
+  //   }
+  //   yield success;
+  //   // let itemResult = await Promise.race()
+  // } while(index < toCompress.length)
+
+  // async function asyncPool(poolLimit, array, iteratorFn) {
+  //   const ret: Array<any> = [];
+  //   const executing: Array<any> = [];
+  //   for (const item of array) {
+  //     const p = Promise.resolve().then(() => iteratorFn(item, array));
+  //     ret.push(p);
+
+  //     if (poolLimit <= array.length) {
+  //       const e = p.then(() => executing.splice(executing.indexOf(e), 1));
+  //       executing.push(e);
+  //       if (executing.length >= poolLimit) {
+  //         await Promise.race(executing);
+  //       }
+  //     }
+  //   }
+  //   return Promise.all(ret);
+  // }
+
+  // for (let index: number = 0; index < toCompressLength; index += (COMPRESSION_CONCURRENCY - active)) {
+  //   if (iterator === 0) {
+  //     report?.update(context);
+  //   }
+  //   let itemResult = await Promise.race(
+  //     toCompress.slice(iterator, iterator + COMPRESSION_CONCURRENCY).map(item => compressor(context, report, item)),
+  //   );
+  //   if (itemResult === false) {
+  //     success = false;
+  //   }
+
+  //   if (itemsSuccessful.includes(false)) {
+  //     success = false;
+  //   }
+  //   yield success;
+  // }
 
   report?.end();
   return success;

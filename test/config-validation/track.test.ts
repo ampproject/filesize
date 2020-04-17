@@ -20,7 +20,7 @@ import { report } from '../../src/api';
 import Config from '../../src/validation/Config';
 import { Context, SizeMapValue, SizeMap } from '../../src/validation/Condition';
 
-test('including trackable items should succeed', async t => {
+test('including trackable items should succeed', async (t) => {
   const context: Context = {
     packagePath: 'test/config-validation/fixtures/track/package.json',
     projectPath: 'test/config-validation/fixtures/track',
@@ -37,7 +37,7 @@ test('including trackable items should succeed', async t => {
   t.is(message, null);
 });
 
-test('trackable items uses glob to find files', async t => {
+test('trackable items uses glob to find files', async (t) => {
   const sizes: SizeMapValue = [
     [null, undefined], // brotli
     [null, undefined], // gzip
@@ -46,12 +46,6 @@ test('trackable items uses glob to find files', async t => {
   const expected: SizeMap = new Map();
   expected.set(resolve('test/config-validation/fixtures/track-standalone/index.js'), sizes);
 
-  const values = report('test/config-validation/fixtures/track-standalone', null);
-  let next = await values.next();
-  let results: SizeMap | undefined = undefined;
-  while (!next.done) {
-    results = next.value[0];
-    next = await values.next();
-  }
+  const results = await report('test/config-validation/fixtures/track-standalone', null);
   t.deepEqual(results, expected);
 });
