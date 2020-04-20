@@ -21,7 +21,11 @@ import compress, { CompressionItem, findItemsToCompress } from './compress';
 import { Report } from './log/report';
 export { Report } from './log/report';
 
-export async function report(projectPath: string, fileModifier: FileModifier, report?: Report): Promise<SizeMap> {
+export async function report(
+  projectPath: string,
+  fileModifier: FileModifier,
+  report?: typeof Report,
+): Promise<SizeMap> {
   const conditions = [Project, Config];
   let context: Context = {
     projectPath,
@@ -45,7 +49,6 @@ export async function report(projectPath: string, fileModifier: FileModifier, re
   }
 
   const toCompress: Array<CompressionItem> = await findItemsToCompress(context, true);
-  await compress(context, toCompress, report instanceof Report ? report : null);
-  // console.log('returning', context.compressed);
+  await compress(context, toCompress, report || null);
   return context.compressed;
 }

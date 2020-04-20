@@ -24,6 +24,7 @@ import { LogError } from './log/helpers/error';
 import { shutdown } from './helpers/process';
 import { Report } from './log/report';
 import { TTYReport } from './log/tty-report';
+import { NoTTYReport } from './log/no-tty-report';
 
 const args = mri(process.argv.slice(2), {
   alias: { p: 'project' },
@@ -50,25 +51,19 @@ const args = mri(process.argv.slice(2), {
     fileContents: new Map(),
   };
 
-  let errorOccured: boolean = false;
   for (const condition of conditions) {
     const message = await condition(context)();
     if (message !== null) {
       LogError(message);
       shutdown(5);
-      errorOccured = true;
+      return;
     }
   }
 
-  if (!errorOccured) {
-    const toCompress: Array<CompressionItem> = await findItemsToCompress(context, true);
-    const report: Report = stdout.isTTY && toCompress.length < 30 ? new TTYReport(context) : new Report(context);
-    const successful = await compress(context, toCompress, report);
-
-    console.log('complete', context.compressed);
-
-    if (!successful) {
-      shutdown(6);
-    }
+  const toCompress: Array<CompressionItem> = await findItemsToCompress(context, true);
+  const report: typeof Report = stdout.isTTY && toCompress.length < 30 ? TTYReport : NoTTYReport;
+  const successful = await compress(context, toCompress, report);
+  if (!successful) {
+    shutdown(6);
   }
 })();

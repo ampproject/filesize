@@ -78,17 +78,18 @@ export async function findItemsToCompress(context: Context, findDefaultSize: boo
 export default async function compress(
   context: Context,
   toCompress: Array<CompressionItem>,
-  report: Report | null,
+  report: typeof Report | null,
 ): Promise<boolean> {
-  let success = true;
   if (toCompress.length === 0) {
-    return success;
+    return true;
   }
 
   const returnable: Array<Promise<boolean>> = [];
   const executing: Array<Promise<boolean>> = [];
+  const reportInstance: Report | null = report ? new report(context) : null;
+  let success = true;
   for (const item of toCompress) {
-    const promise: Promise<boolean> = Promise.resolve(item).then((item) => compressor(context, report, item));
+    const promise: Promise<boolean> = Promise.resolve(item).then((item) => compressor(context, reportInstance, item));
     returnable.push(promise);
 
     if (COMPRESSION_CONCURRENCY <= toCompress.length) {
@@ -108,5 +109,6 @@ export default async function compress(
     success = false;
   }
 
+  reportInstance?.end();
   return success;
 }

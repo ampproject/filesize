@@ -36,10 +36,10 @@ type size = number | null | undefined;
 - undefined = unrestricted size
 */
 export type maxSize = number | undefined;
-type brotli = [size, maxSize];
-type gzip = [size, maxSize];
-type none = [size, maxSize];
-export type SizeMapValue = [brotli, gzip, none];
+export type brotliSize = [size, maxSize];
+export type gzipSize = [size, maxSize];
+export type noneSize = [size, maxSize];
+export type SizeMapValue = [brotliSize, gzipSize, noneSize];
 export const SizeMapValueIndex = {
   brotli: 0,
   gzip: 1,
