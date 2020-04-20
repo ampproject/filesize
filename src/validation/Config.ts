@@ -66,7 +66,7 @@ const CONDITIONS = [
         return `There is no 'filesize' configuration in '${context.packagePath}'`;
       }
 
-      const { track, ...keys } = json;
+      const { track, trackFormat, ...keys } = json;
       if (Object.entries(keys).length === 0 && track === undefined) {
         return `There is no data inside the 'filesize' configuration in '${context.packagePath}'`;
       }
@@ -96,7 +96,7 @@ const CONDITIONS = [
 ];
 
 const Config: ConditionFunction = (context: Context) =>
-  async function() {
+  async function () {
     for await (const condition of CONDITIONS) {
       const conditionResult = await condition(context);
       if (conditionResult !== null) {

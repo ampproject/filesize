@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { Context, ValidationResponse } from './Condition';
-import glob from 'fast-glob';
 import { resolve } from 'path';
+import glob from 'fast-glob';
+import { Context, ValidationResponse, SizeMapValue } from './Condition';
 
 /**
  * Use 'fast-glob' to find files requested to track from configuration.
@@ -27,15 +27,26 @@ export async function Track(context: Context, json: any): Promise<ValidationResp
   if ('track' in json && Array.isArray(json.track)) {
     const entries: Array<string> = await glob(json.track);
 
+    let trackedFormats: SizeMapValue = [
+      [null, undefined],
+      [null, undefined],
+      [null, undefined],
+    ];
+    if ('trackFormat' in json && Array.isArray(json.trackFormat)) {
+      // `trackFormats` allows you to limit the compression types for tracking
+      const formats = json.trackFormat.map((format: any) => validateCompressionName(String(format))).filter(Boolean);
+      trackedFormats = [
+        [formats.includes('brotli') ? null : undefined, undefined],
+        [formats.includes('gzip') ? null : undefined, undefined],
+        [formats.includes('none') ? null : undefined, undefined],
+      ];
+    }
+
     // glob ensures the results are valid files.
     for (const entry of entries) {
       const path = resolve(entry);
 
-      context.compressed.set(path, [
-        [null, undefined],
-        [null, undefined],
-        [null, undefined],
-      ]);
+      context.compressed.set(path, trackedFormats);
       context.originalPaths.set(path, entry);
     }
   }
