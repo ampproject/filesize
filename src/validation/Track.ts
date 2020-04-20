@@ -17,6 +17,7 @@
 import { resolve } from 'path';
 import glob from 'fast-glob';
 import { Context, ValidationResponse, SizeMapValue } from './Condition';
+import { validateCompressionName } from './File';
 
 /**
  * Use 'fast-glob' to find files requested to track from configuration.

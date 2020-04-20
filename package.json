@@ -17,7 +17,8 @@
     "url": "https://github.com/ampproject/filesize.git"
   },
   "scripts": {
-    "pretest": "tsc -p test/tsconfig.json",
+    "build-tests": "tsc -p test/tsconfig.json",
+    "pretest": "yarn npm-run-all build build-tests",
     "test": "ava -v --timeout=2m",
     "clean": "rimraf dist output test/output",
     "build": "rollup -c; shx chmod a+x dist/filesize",
