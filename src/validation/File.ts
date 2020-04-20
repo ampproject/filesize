@@ -23,7 +23,7 @@ const bytes = require('bytes');
  * Format input string to a known Compression Enum Value.
  * @param fsValue
  */
-function validateCompressionName(fsValue: string): Compression | null {
+export function validateCompressionName(fsValue: string): Compression | null {
   const lowerCaseValue = fsValue.toLowerCase();
   switch (fsValue.toLowerCase()) {
     case 'brotli':

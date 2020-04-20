@@ -17,7 +17,8 @@
     "url": "https://github.com/ampproject/filesize.git"
   },
   "scripts": {
-    "pretest": "tsc -p test/tsconfig.json",
+    "build-tests": "tsc -p test/tsconfig.json",
+    "pretest": "yarn npm-run-all build build-tests",
     "test": "ava -v --timeout=2m",
     "clean": "rimraf dist output test/output",
     "build": "rollup -c; shx chmod a+x dist/filesize",
@@ -42,7 +43,7 @@
     "ava": "3.5.1",
     "husky": "4.2.5",
     "lint-staged": "10.1.4",
-    "np": "6.2.1",
+    "np": "https://github.com/pixelastic/np/tarball/c3ab2e3b053c7da0ce40a572ca1616273ac080f8",
     "npm-run-all": "4.1.5",
     "prettier": "2.0.4",
     "rimraf": "3.0.2",
@@ -85,7 +86,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-push": "yarn npm-run-all clean build test",
+      "pre-push": "yarn npm-run-all clean test",
       "pre-commit": "lint-staged"
     }
   },
