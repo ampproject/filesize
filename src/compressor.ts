@@ -77,7 +77,7 @@ function store(
     LogError(`Could not find item '${item.path}' with '${item.compression}' in compression map.`);
     return false;
   }
-  sizeMap[OrderedCompressionValues.indexOf(item.compression)][0] = size;
+  // sizeMap[OrderedCompressionValues.indexOf(item.compression)][0] = size;
 
   report?.update(context);
   if (item.maxSize === undefined) {
@@ -89,14 +89,13 @@ function store(
 export function compressor(context: Context, report: Report | null, item: CompressionItem): Promise<boolean> {
   const contents = context.fileContents.get(item.path);
   if (contents) {
-    const buffer = Buffer.from(contents, 'utf8');
-
     return new Promise((resolve) => {
+      const buffer = Buffer.from(contents, 'utf8');
       const compression = SUPPORTED_COMPRESSION.get(item.compression);
       if (compression) {
-        compression[0](buffer, compression[1], (error: Error | null, result: Buffer) => {
-          resolve(store(report, context, item, error, result.byteLength));
-        });
+        compression[0](buffer, compression[1], (error: Error | null, result: Buffer) =>
+          resolve(store(report, context, item, error, result.byteLength)),
+        );
       } else {
         resolve(store(report, context, item, null, buffer.byteLength));
       }

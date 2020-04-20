@@ -1,0 +1,6 @@
+{
+  "filesize": {
+    "track": ["test/config-validation/fixtures/track-standalone-format/**/*.js"],
+    "trackFormat": ["brotli"]
+  }
+}

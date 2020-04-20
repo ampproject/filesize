@@ -62,18 +62,10 @@ const args = mri(process.argv.slice(2), {
 
   if (!errorOccured) {
     const toCompress: Array<CompressionItem> = await findItemsToCompress(context, true);
-    const report: Report | null = stdout.isTTY && toCompress.length < 30 ? new TTYReport(context) : new Report(context);
+    const report: Report = stdout.isTTY && toCompress.length < 30 ? new TTYReport(context) : new Report(context);
     const successful = await compress(context, toCompress, report);
 
-    // let successful: boolean = true;
-    // let nextResult: Promise<IteratorResult<boolean | null, boolean>> = compressResults.next();
-    // while (!nextResult.done) {
-    //   if (!nextResult.value) {
-    //     successful = false;
-    //   }
-    //   nextResult = compressResults.next();
-    //   // nextResult = await compressResults.next();
-    // }
+    console.log('complete', context.compressed);
 
     if (!successful) {
       shutdown(6);

@@ -29,7 +29,8 @@
     "bytes": "3.1.0",
     "fast-glob": "3.2.2",
     "kleur": "3.0.3",
-    "mri": "1.1.5"
+    "mri": "1.1.5",
+    "tiny-async-pool": "1.1.0"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "0.25.2",
@@ -39,6 +40,7 @@
     "@types/bytes": "3.1.0",
     "@types/mri": "1.1.0",
     "@types/node": "12.12.35",
+    "@types/tiny-async-pool": "1.0.0",
     "ava": "3.5.1",
     "husky": "4.2.5",
     "lint-staged": "10.1.4",

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-import { Context, Compression, OrderedCompressionValues, maxSize } from './validation/Condition';
 import { cpus } from 'os';
+import asyncPool from 'tiny-async-pool';
+import { Context, Compression, OrderedCompressionValues, maxSize } from './validation/Condition';
 import { readFile } from './helpers/fs';
 import { Report } from './log/report';
-// import { TTYReport } from './log/tty-report';
-// import { stdout } from 'process';
-import { compressor } from './worker';
+import { compressor } from './compressor';
 
-const COMPRESSION_CONCURRENCY = cpus().length;
+const COMPRESSION_CONCURRENCY = true ? 1 : cpus().length;
 
 export interface CompressionItem {
   path: string;
@@ -87,81 +86,49 @@ export default async function compress(
     return success;
   }
 
-  const returnable: Array<Promise<boolean>> = [];
-  const executing: Array<Promise<boolean>> = [];
-  for (const item of toCompress) {
-    const promise: Promise<boolean> = Promise.resolve().then(() => compressor(context, report, item));
-    returnable.push(promise);
+  await asyncPool(COMPRESSION_CONCURRENCY, toCompress, (item) => compressor(context, report, item));
 
-    if (COMPRESSION_CONCURRENCY <= toCompress.length) {
-      const execute: any = promise.then((successful) => {
-        if (!successful) {
-          success = successful;
-        }
-        executing.splice(executing.indexOf(execute), 1);
-      });
-      executing.push(execute);
-      if (executing.length >= COMPRESSION_CONCURRENCY) {
-        await Promise.race(executing);
-      }
-    }
-  }
-  await Promise.all(returnable);
-
-  return success;
-
-  // const toCompressPromises: Array<Promise<boolean>> = toCompress.map(item => compressor(context, report, item));
-  // let success = true;
-  // let active = 0;
-  // let index = 0;
-
-  // report?.update(context);
-  // do {
-  //   const compressionPromisesToStart = toCompressPromises.slice(index, index + (COMPRESSION_CONCURRENCY - active));
-  //   const fastestResult = await Promise.race(compressionPromisesToStart);
-
-  //   if (fastestResult === false) {
-  //     success = false;
-  //   }
-  //   yield success;
-  //   // let itemResult = await Promise.race()
-  // } while(index < toCompress.length)
-
-  // async function asyncPool(poolLimit, array, iteratorFn) {
-  //   const ret: Array<any> = [];
-  //   const executing: Array<any> = [];
-  //   for (const item of array) {
-  //     const p = Promise.resolve().then(() => iteratorFn(item, array));
-  //     ret.push(p);
-
-  //     if (poolLimit <= array.length) {
-  //       const e = p.then(() => executing.splice(executing.indexOf(e), 1));
-  //       executing.push(e);
-  //       if (executing.length >= poolLimit) {
-  //         await Promise.race(executing);
-  //       }
-  //     }
-  //   }
-  //   return Promise.all(ret);
-  // }
-
-  // for (let index: number = 0; index < toCompressLength; index += (COMPRESSION_CONCURRENCY - active)) {
-  //   if (iterator === 0) {
-  //     report?.update(context);
-  //   }
-  //   let itemResult = await Promise.race(
-  //     toCompress.slice(iterator, iterator + COMPRESSION_CONCURRENCY).map(item => compressor(context, report, item)),
-  //   );
-  //   if (itemResult === false) {
-  //     success = false;
-  //   }
-
-  //   if (itemsSuccessful.includes(false)) {
-  //     success = false;
-  //   }
-  //   yield success;
-  // }
-
-  report?.end();
   return success;
 }
+// const returnable: Array<Promise<boolean>> = [];
+// const executing: Array<Promise<boolean>> = [];
+// for (const item of toCompress) {
+//   const promise: Promise<boolean> = Promise.resolve(item).then((item) => compressor(context, report, item));
+//   returnable.push(promise);
+
+//   if (COMPRESSION_CONCURRENCY <= toCompress.length) {
+//     const execute: any = promise.then((successful) => {
+//       if (!successful) {
+//         success = successful;
+//       }
+//       executing.splice(executing.indexOf(execute), 1);
+//     });
+//     executing.push(execute);
+//     if (executing.length >= COMPRESSION_CONCURRENCY) {
+//       await Promise.race(executing);
+//     }
+//   }
+// }
+// if ((await Promise.all(returnable)).includes(false)) {
+//   success = false;
+// }
+
+// console.log('compress done', context.compressed);
+// return success;
+/*
+const ret = [];
+const executing = [];
+for (const item of array) {
+  const p = Promise.resolve().then(() => iteratorFn(item, array));
+  ret.push(p);
+
+  if (poolLimit <= array.length) {
+    const e = p.then(() => executing.splice(executing.indexOf(e), 1));
+    executing.push(e);
+    if (executing.length >= poolLimit) {
+      await Promise.race(executing);
+    }
+  }
+}
+return Promise.all(ret);
+  */

@@ -46,5 +46,6 @@ export async function report(projectPath: string, fileModifier: FileModifier, re
 
   const toCompress: Array<CompressionItem> = await findItemsToCompress(context, true);
   await compress(context, toCompress, report instanceof Report ? report : null);
+  // console.log('returning', context.compressed);
   return context.compressed;
 }
