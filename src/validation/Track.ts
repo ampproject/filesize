@@ -39,7 +39,7 @@ export async function Track(context: Context, json: any): Promise<ValidationResp
       trackedFormats = [
         [formats.includes('brotli') ? null : undefined, undefined],
         [formats.includes('gzip') ? null : undefined, undefined],
-        [null, undefined],
+        [formats.includes('none') ? null : undefined, undefined],
       ];
     }
 
@@ -47,7 +47,7 @@ export async function Track(context: Context, json: any): Promise<ValidationResp
     for (const entry of entries) {
       const path = resolve(entry);
 
-      context.compressed.set(path, trackedFormats);
+      context.compressed.set(path, Array.from(trackedFormats, (item) => Array.from(item)) as SizeMapValue);
       context.originalPaths.set(path, entry);
     }
   }

@@ -77,7 +77,7 @@ function store(
     LogError(`Could not find item '${item.path}' with '${item.compression}' in compression map.`);
     return false;
   }
-  // sizeMap[OrderedCompressionValues.indexOf(item.compression)][0] = size;
+  sizeMap[OrderedCompressionValues.indexOf(item.compression)][0] = size;
 
   report?.update(context);
   if (item.maxSize === undefined) {

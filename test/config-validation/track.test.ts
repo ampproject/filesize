@@ -54,7 +54,7 @@ test('trackable items uses trackFormats to restrict compression types', async (t
   const sizes: SizeMapValue = [
     [null, undefined], // brotli
     [undefined, undefined], // gzip
-    [null, undefined], // none
+    [undefined, undefined], // none
   ];
   const expected: SizeMap = new Map();
   expected.set(resolve('test/config-validation/fixtures/track-standalone-format/index.js'), sizes);
