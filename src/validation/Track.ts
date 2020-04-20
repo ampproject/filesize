@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import glob from 'fast-glob';
 import { resolve } from 'path';
+import glob from 'fast-glob';
 import { Context, ValidationResponse, SizeMapValue } from './Condition';
 import { validateCompressionName } from './File';
 
