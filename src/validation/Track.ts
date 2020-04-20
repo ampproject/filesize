@@ -19,6 +19,11 @@ import glob from 'fast-glob';
 import { Context, ValidationResponse, SizeMapValue } from './Condition';
 import { validateCompressionName } from './File';
 
+/**
+ * Given formats, format a SizeMapValue.
+ * @param {Array<string>} formats
+ * @return {SizeMapValue}
+ */
 function getTrackedFormats(formats: Array<string>): SizeMapValue {
   return [
     [formats.includes('brotli') ? null : undefined, undefined],
@@ -29,8 +34,7 @@ function getTrackedFormats(formats: Array<string>): SizeMapValue {
 
 /**
  * Use 'fast-glob' to find files requested to track from configuration.
- * @param context
- * @param trackGlobs pre-parsed array of globs to use.
+ * @param {Context} context
  */
 export async function Track(context: Context, json: any): Promise<ValidationResponse> {
   if ('track' in json && Array.isArray(json.track)) {
