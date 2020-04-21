@@ -16,22 +16,22 @@
 
 import test from 'ava';
 import { exec } from 'child_process';
-import { report } from '../../src/api';
+import { report, Report } from '../../src/api';
 import { SizeMapValue, SizeMap } from '../../src/validation/Condition';
-import { resolve } from 'path';
+import { resolve, relative } from 'path';
 
-test.cb('item under requested filesize limit passes', t => {
-  const executeFailure = exec('./dist/filesize -p=test/end-to-end/fixtures/successful');
+const toReport = 'test/end-to-end/fixtures/successful';
 
-  executeFailure.on('exit', code => {
+test.cb('item under requested filesize limit passes', (t) => {
+  const executeSuccess = exec('./dist/filesize -p=test/end-to-end/fixtures/successful');
+
+  executeSuccess.on('exit', (code) => {
     t.is(code, 0);
     t.end();
   });
 });
 
-test('item under requested filesize limit passes from API', async t => {
-  const toReport = 'test/end-to-end/fixtures/successful';
-
+test('item under requested filesize limit passes from API', async (t) => {
   const sizes: SizeMapValue = [
     [3410, 3584], // brotli
     [3737, 4096], // gzip
@@ -40,19 +40,11 @@ test('item under requested filesize limit passes from API', async t => {
   const expected: SizeMap = new Map();
   expected.set(resolve('test/end-to-end/fixtures/successful/index.js'), sizes);
 
-  const values = report(toReport, null);
-  let next = await values.next();
-  let results: SizeMap | undefined = undefined;
-  while (!next.done) {
-    results = next.value[0];
-    next = await values.next();
-  }
+  const results = await report(toReport, null);
   t.deepEqual(results, expected);
 });
 
-test('item under requested filesize limit passes from API, with replacement', async t => {
-  const toReport = 'test/end-to-end/fixtures/successful';
-
+test('item under requested filesize limit passes from API, with replacement', async (t) => {
   const sizes: SizeMapValue = [
     [3401, 3584], // brotli
     [3731, 4096], // gzip
@@ -61,12 +53,31 @@ test('item under requested filesize limit passes from API, with replacement', as
   const expected: SizeMap = new Map();
   expected.set(resolve('test/end-to-end/fixtures/successful/index.js'), sizes);
 
-  const values = report(toReport, content => content.replace(new RegExp('preact.umd.js.map', 'g'), 'FOO.map'));
-  let next = await values.next();
-  let results: SizeMap | undefined = undefined;
-  while (!next.done) {
-    results = next.value[0];
-    next = await values.next();
-  }
+  const results = await report(toReport, (content) => content.replace(new RegExp('preact.umd.js.map', 'g'), 'FOO.map'));
   t.deepEqual(results, expected);
+});
+
+test('api is interactive with custom reporter', async (t) => {
+  const toReport = 'test/end-to-end/fixtures/api-report';
+  const mapping = new Map([
+    ['preact.js', 3477],
+    ['inferno.js', 7297],
+    ['react-dom.js', 28721],
+  ]);
+
+  await report(
+    'test/end-to-end/fixtures/api-report',
+    (content) => content,
+    class extends Report {
+      update(context: any) {
+        const completed = super.getUpdated(context);
+        for (const complete of completed) {
+          const [filePath, sizeMap] = complete;
+          const relativePath = relative(toReport, filePath);
+          t.is(mapping.has(relativePath), true);
+          t.is(mapping.get(relativePath), sizeMap[0][0]);
+        }
+      }
+    },
+  );
 });

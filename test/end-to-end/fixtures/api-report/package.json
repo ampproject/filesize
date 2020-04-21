@@ -1,0 +1,6 @@
+{
+  "filesize": {
+    "track": ["test/end-to-end/fixtures/api-report/**/*.js"],
+    "trackFormat": ["brotli"]
+  }
+}

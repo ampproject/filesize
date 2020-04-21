@@ -16,45 +16,16 @@
 
 import Project from './validation/Project';
 import Config from './validation/Config';
-import { Context, SizeMap, FileModifier } from './validation/Condition';
-import compress from './compress';
+import { Context, FileModifier, SizeMap } from './validation/Condition';
+import compress, { CompressionItem, findItemsToCompress } from './compress';
+import { Report } from './log/report';
+export { Report } from './log/report';
 
-export async function* report(projectPath: string, fileModifier: FileModifier): AsyncGenerator<[SizeMap, SizeMap]> {
-  const conditions = [Project, Config];
-  let context: Context = {
-    projectPath,
-    packagePath: '',
-    packageContent: '',
-    silent: true,
-    originalPaths: new Map(),
-    // Stores the result of compression <path, [...results]>
-    compressed: new Map(),
-    // Stores the basis of comparison.
-    comparison: new Map(),
-    fileModifier,
-    fileContents: new Map(),
-  };
-
-  for (const condition of conditions) {
-    const message = await condition(context)();
-    if (message !== null) {
-      throw message;
-    }
-  }
-
-  const compressResults = compress(context, false);
-  let nextResult = await compressResults.next();
-  while (!nextResult.done) {
-    yield [context.compressed, context.comparison];
-    nextResult = await compressResults.next();
-  }
-  return [context.compressed, context.comparison];
-}
-
-export async function* serialReport(
+export async function report(
   projectPath: string,
   fileModifier: FileModifier,
-): AsyncGenerator<[string, number, number, number]> {
+  report?: typeof Report,
+): Promise<SizeMap> {
   const conditions = [Project, Config];
   let context: Context = {
     projectPath,
@@ -77,18 +48,7 @@ export async function* serialReport(
     }
   }
 
-  const compressResults = compress(context, false);
-  const paths: Set<string> = new Set(Array.from(context.compressed.keys()));
-  let next = await compressResults.next();
-  while (!next.done) {
-    for (const filePath of paths) {
-      const sizes = context.compressed.get(filePath);
-      if (sizes !== undefined && sizes?.[0][0] && sizes?.[1][0] && sizes?.[2][0]) {
-        yield [filePath, sizes?.[0][0], sizes?.[1][0], sizes?.[2][0]];
-        paths.delete(filePath);
-      }
-    }
-    next = await compressResults.next();
-  }
-  return;
+  const toCompress: Array<CompressionItem> = await findItemsToCompress(context, true);
+  await compress(context, toCompress, report || null);
+  return context.compressed;
 }

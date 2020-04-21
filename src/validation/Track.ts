@@ -20,34 +20,37 @@ import { Context, ValidationResponse, SizeMapValue } from './Condition';
 import { validateCompressionName } from './File';
 
 /**
+ * Given formats, format a SizeMapValue.
+ * @param {Array<string>} formats
+ * @return {SizeMapValue}
+ */
+function getTrackedFormats(formats: Array<string>): SizeMapValue {
+  return [
+    [formats.includes('brotli') ? null : undefined, undefined],
+    [formats.includes('gzip') ? null : undefined, undefined],
+    [formats.includes('none') ? null : undefined, undefined],
+  ];
+}
+
+/**
  * Use 'fast-glob' to find files requested to track from configuration.
- * @param context
- * @param trackGlobs pre-parsed array of globs to use.
+ * @param {Context} context
  */
 export async function Track(context: Context, json: any): Promise<ValidationResponse> {
   if ('track' in json && Array.isArray(json.track)) {
     const entries: Array<string> = await glob(json.track);
+    let formats = ['brotli', 'gzip', 'none'];
 
-    let trackedFormats: SizeMapValue = [
-      [null, undefined],
-      [null, undefined],
-      [null, undefined],
-    ];
     if ('trackFormat' in json && Array.isArray(json.trackFormat)) {
       // `trackFormats` allows you to limit the compression types for tracking
-      const formats = json.trackFormat.map((format: any) => validateCompressionName(String(format))).filter(Boolean);
-      trackedFormats = [
-        [formats.includes('brotli') ? null : undefined, undefined],
-        [formats.includes('gzip') ? null : undefined, undefined],
-        [formats.includes('none') ? null : undefined, undefined],
-      ];
+      formats = json.trackFormat.map((format: any) => validateCompressionName(String(format))).filter(Boolean);
     }
 
     // glob ensures the results are valid files.
     for (const entry of entries) {
       const path = resolve(entry);
 
-      context.compressed.set(path, trackedFormats);
+      context.compressed.set(path, getTrackedFormats(formats));
       context.originalPaths.set(path, entry);
     }
   }

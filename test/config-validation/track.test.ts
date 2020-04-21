@@ -46,13 +46,7 @@ test('trackable items uses glob to find files', async (t) => {
   const expected: SizeMap = new Map();
   expected.set(resolve('test/config-validation/fixtures/track-standalone/index.js'), sizes);
 
-  const values = report('test/config-validation/fixtures/track-standalone', null);
-  let next = await values.next();
-  let results: SizeMap | undefined = undefined;
-  while (!next.done) {
-    results = next.value[0];
-    next = await values.next();
-  }
+  const results = await report('test/config-validation/fixtures/track-standalone', null);
   t.deepEqual(results, expected);
 });
 
@@ -65,12 +59,6 @@ test('trackable items uses trackFormats to restrict compression types', async (t
   const expected: SizeMap = new Map();
   expected.set(resolve('test/config-validation/fixtures/track-standalone-format/index.js'), sizes);
 
-  const values = report('test/config-validation/fixtures/track-standalone-format', null);
-  let next = await values.next();
-  let results: SizeMap | undefined = undefined;
-  while (!next.done) {
-    results = next.value[0];
-    next = await values.next();
-  }
+  const results = await report('test/config-validation/fixtures/track-standalone-format', null);
   t.deepEqual(results, expected);
 });
