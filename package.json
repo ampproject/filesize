@@ -23,7 +23,7 @@
     "clean": "rimraf dist output test/output",
     "build": "rollup -c; shx chmod a+x dist/filesize",
     "try": "./dist/filesize",
-    "release": "np",
+    "release": "np --no-2fa",
     "prepublishOnly": "yarn npm-run-all clean build"
   },
   "dependencies": {
