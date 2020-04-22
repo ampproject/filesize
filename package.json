@@ -27,6 +27,7 @@
     "prepublishOnly": "yarn npm-run-all clean build"
   },
   "dependencies": {
+    "@kristoferbaxter/async": "0.0.4",
     "bytes": "3.1.0",
     "fast-glob": "3.2.2",
     "kleur": "3.0.3",
@@ -53,7 +54,7 @@
     "typescript": "3.8.3"
   },
   "volta": {
-    "node": "12.16.2",
+    "node": "14.0.0",
     "yarn": "1.22.4"
   },
   "filesize": {
