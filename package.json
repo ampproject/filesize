@@ -20,11 +20,12 @@
     "url": "https://github.com/ampproject/filesize.git"
   },
   "scripts": {
+    "clean": "rimraf dist output test/output",
+    "format": "prettier --write '**/*.ts'",
     "build-tests": "tsc -p test/tsconfig.json",
     "postbuild-tests": "tsc-esm -p test/output",
     "pretest": "yarn npm-run-all build build-tests",
     "test": "ava -v --timeout=2m",
-    "clean": "rimraf dist output test/output",
     "build": "rollup -c; chmod a+x dist/filesize",
     "try": "./dist/filesize",
     "release": "np --no-2fa",
