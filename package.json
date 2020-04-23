@@ -46,8 +46,6 @@
     "@types/mri": "1.1.0",
     "@types/node": "12.12.36",
     "ava": "3.7.1",
-    "husky": "4.2.5",
-    "lint-staged": "10.1.6",
     "np": "https://github.com/pixelastic/np/tarball/c3ab2e3b053c7da0ce40a572ca1616273ac080f8",
     "npm-run-all": "4.1.5",
     "prettier": "2.0.4",
@@ -83,17 +81,6 @@
     "files": [
       "test/output/**/*.test.mjs"
     ]
-  },
-  "lint-staged": {
-    "*.ts": [
-      "prettier --write"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "yarn npm-run-all clean test",
-      "pre-commit": "lint-staged"
-    }
   },
   "publishConfig": {
     "access": "public"
