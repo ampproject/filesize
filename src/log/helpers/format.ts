@@ -17,7 +17,7 @@
 import { OrderedCompressionValues, Context } from '../../validation/Condition';
 import { prettyBytes } from './bytes';
 
-const COMPRESSED_NAMES_LENGTH = OrderedCompressionValues.map(compression => compression.length);
+const COMPRESSED_NAMES_LENGTH = OrderedCompressionValues.map((compression) => compression.length);
 const SPACE_AFTER_COMPRESSION = 2;
 
 /**
@@ -47,5 +47,5 @@ export function maxFormatDisplay(context: Context): number {
  * @param maxFormatDisplay
  */
 export function formats(maxFormatDisplay: number): string {
-  return OrderedCompressionValues.map(compression => compression.padEnd(maxFormatDisplay)).join('');
+  return OrderedCompressionValues.map((compression) => compression.padEnd(maxFormatDisplay)).join('');
 }

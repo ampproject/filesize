@@ -19,7 +19,7 @@ import Project from '../../src/validation/Project';
 import { resolve } from 'path';
 import { Context } from '../../src/validation/Condition';
 
-test('valid directory should pass', async t => {
+test('valid directory should pass', async (t) => {
   const context: Context = {
     packagePath: '',
     projectPath: 'test/project-validation/fixtures/contains-package-json',
@@ -36,7 +36,7 @@ test('valid directory should pass', async t => {
   t.is(message, null);
 });
 
-test('invalid directory should fail', async t => {
+test('invalid directory should fail', async (t) => {
   const context = {
     packagePath: '',
     projectPath: 'test/project-validation/fixtures-invalid',
@@ -53,7 +53,7 @@ test('invalid directory should fail', async t => {
   t.is(message, `error project specified '${context.projectPath}' doesn't exist, is this a valid project?`);
 });
 
-test('directory missing package.json should fail', async t => {
+test('directory missing package.json should fail', async (t) => {
   const context = {
     packagePath: '',
     projectPath: 'test/project-validation/fixtures/missing-package-json',
