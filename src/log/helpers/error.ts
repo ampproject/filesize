@@ -15,7 +15,7 @@
  */
 
 import { write } from './output';
-const kleur = require('kleur');
+import kleur from 'kleur';
 
 // Disable output colors for test runs.
 kleur.enabled = !('AVA_PATH' in process.env);

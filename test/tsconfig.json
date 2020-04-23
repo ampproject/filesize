@@ -5,10 +5,10 @@
       "esnext"
     ],
     "outDir": "output",
-    "sourceMap": true,
+    "sourceMap": false,
     "moduleResolution": "node",
     "target": "ES2019",
-    "module": "commonjs",
+    "module": "esnext",
     "allowJs": false,
     "noUnusedLocals": true,
     "strictNullChecks": true,
