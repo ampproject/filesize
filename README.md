@@ -2,7 +2,7 @@
 
 **Purpose**: Monitor the size of files in your project specified within `package.json`.
 
-Uses native compression from Node Core, attempts to parallelize compression work across available CPUs, and requires Node >= `10.16`.
+Uses native compression from Node Core, attempts to parallelize compression work across available CPUs, and requires Node >= `12`.
 
 ![Interactive UI Processing Large Files](https://github.com/ampproject/filesize/raw/master/.github/preview.gif)
 
