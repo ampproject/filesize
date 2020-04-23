@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-import { cpus } from 'os';
 import { Context, Compression, OrderedCompressionValues, maxSize } from './validation/Condition';
 import { readFile } from './helpers/fs';
 import { Report } from './log/report';
 import { compressor } from './compressor';
-
-const COMPRESSION_CONCURRENCY = cpus().length;
+import { pool } from '@kristoferbaxter/async';
 
 export interface CompressionItem {
   path: string;
@@ -84,31 +82,8 @@ export default async function compress(
     return true;
   }
 
-  const returnable: Array<Promise<boolean>> = [];
-  const executing: Array<Promise<boolean>> = [];
   const reportInstance: Report | null = report ? new report(context) : null;
-  let success = true;
-  for (const item of toCompress) {
-    const promise: Promise<boolean> = Promise.resolve(item).then((item) => compressor(context, reportInstance, item));
-    returnable.push(promise);
-
-    if (COMPRESSION_CONCURRENCY <= toCompress.length) {
-      const execute: any = promise.then((successful) => {
-        if (!successful) {
-          success = successful;
-        }
-        executing.splice(executing.indexOf(execute), 1);
-      });
-      executing.push(execute);
-      if (executing.length >= COMPRESSION_CONCURRENCY) {
-        await Promise.race(executing);
-      }
-    }
-  }
-  if ((await Promise.all(returnable)).includes(false)) {
-    success = false;
-  }
-
+  const successful = await pool(toCompress, (item: CompressionItem) => compressor(context, reportInstance, item));
   reportInstance?.end();
-  return success;
+  return successful.every((success) => success);
 }

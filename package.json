@@ -9,6 +9,9 @@
   "files": [
     "dist"
   ],
+  "engines": {
+    "node": ">=12"
+  },
   "bin": {
     "filesize": "./dist/filesize"
   },
@@ -17,16 +20,19 @@
     "url": "https://github.com/ampproject/filesize.git"
   },
   "scripts": {
+    "clean": "rimraf dist output test/output",
+    "format": "prettier --write '**/*.ts'",
     "build-tests": "tsc -p test/tsconfig.json",
+    "postbuild-tests": "tsc-esm -p test/output",
     "pretest": "yarn npm-run-all build build-tests",
     "test": "ava -v --timeout=2m",
-    "clean": "rimraf dist output test/output",
-    "build": "rollup -c; shx chmod a+x dist/filesize",
+    "build": "rollup -c; chmod a+x dist/filesize",
     "try": "./dist/filesize",
     "release": "np --no-2fa",
     "prepublishOnly": "yarn npm-run-all clean build"
   },
   "dependencies": {
+    "@kristoferbaxter/async": "0.0.7",
     "bytes": "3.1.0",
     "fast-glob": "3.2.2",
     "kleur": "3.0.3",
@@ -41,19 +47,17 @@
     "@types/mri": "1.1.0",
     "@types/node": "12.12.36",
     "ava": "3.7.1",
-    "husky": "4.2.5",
-    "lint-staged": "10.1.6",
     "np": "https://github.com/pixelastic/np/tarball/c3ab2e3b053c7da0ce40a572ca1616273ac080f8",
     "npm-run-all": "4.1.5",
     "prettier": "2.0.4",
     "rimraf": "3.0.2",
     "rollup": "2.6.1",
-    "shx": "0.3.2",
     "tslib": "1.11.1",
-    "typescript": "3.8.3"
+    "typescript": "3.8.3",
+    "typescript-esm": "0.0.6"
   },
   "volta": {
-    "node": "12.16.2",
+    "node": "14.0.0",
     "yarn": "1.22.4"
   },
   "filesize": {
@@ -76,19 +80,8 @@
   },
   "ava": {
     "files": [
-      "test/output/**/*.test.js"
+      "test/output/**/*.test.mjs"
     ]
-  },
-  "lint-staged": {
-    "*.ts": [
-      "prettier --write"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "yarn npm-run-all clean test",
-      "pre-commit": "lint-staged"
-    }
   },
   "publishConfig": {
     "access": "public"

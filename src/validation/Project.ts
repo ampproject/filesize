@@ -24,7 +24,7 @@ import { MakeError } from '../log/helpers/error';
  * @param context
  */
 const Project: ConditionFunction = (context: Context) => {
-  return async function() {
+  return async function () {
     const projectPath: string = resolve(context.projectPath);
     if (!(await isDirectory(projectPath))) {
       return MakeError(`project specified '${context.projectPath}' doesn't exist, is this a valid project?`);
