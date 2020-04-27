@@ -48,7 +48,7 @@ async function storeOriginalFileContents(context: Context, path: string): Promis
  */
 export async function findItemsToCompress(context: Context, findDefaultSize: boolean): Promise<Array<CompressionItem>> {
   const toCompress: Array<CompressionItem> = [];
-  for (const [path, sizeMapValue] of context.compressed) {
+  await pool(Array.from(context.compressed), async ([path, sizeMapValue]) => {
     for (let iterator: number = 0; iterator < OrderedCompressionValues.length; iterator++) {
       const compression: Compression = OrderedCompressionValues[iterator] as Compression;
       const [size, maxSize] = sizeMapValue[iterator];
@@ -64,7 +64,7 @@ export async function findItemsToCompress(context: Context, findDefaultSize: boo
         });
       }
     }
-  }
+  });
 
   return toCompress;
 }

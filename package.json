@@ -32,7 +32,7 @@
     "prepublishOnly": "yarn npm-run-all clean build"
   },
   "dependencies": {
-    "@kristoferbaxter/async": "0.0.7",
+    "@kristoferbaxter/async": "1.0.0",
     "bytes": "3.1.0",
     "fast-glob": "3.2.2",
     "kleur": "3.0.3",
