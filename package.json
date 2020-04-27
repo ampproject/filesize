@@ -23,7 +23,7 @@
     "clean": "rimraf dist output test/output",
     "format": "prettier --write '**/*.ts'",
     "build-tests": "tsc -p test/tsconfig.json",
-    "postbuild-tests": "tsc-esm -p test/output",
+    "postbuild-tests": "tsc-esm -p test/tsconfig.json",
     "pretest": "yarn npm-run-all build build-tests",
     "test": "ava -v --timeout=2m",
     "build": "rollup -c; chmod a+x dist/filesize",
@@ -54,7 +54,7 @@
     "rollup": "2.6.1",
     "tslib": "1.11.1",
     "typescript": "3.8.3",
-    "typescript-esm": "0.0.6"
+    "typescript-esm": "1.0.1"
   },
   "volta": {
     "node": "14.0.0",
