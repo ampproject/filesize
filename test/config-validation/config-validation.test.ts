@@ -15,6 +15,7 @@
  */
 
 import test from 'ava';
+import { exec } from 'child_process';
 import Config from '../../src/validation/Config';
 import { Context } from '../../src/validation/Condition';
 
@@ -118,4 +119,13 @@ test("missing compression from item in 'filesize' should fail", async (t) => {
   const message = await Config(context)();
 
   t.is(message, `Configuration for 'index.js' is invalid. (compression values unspecified)`);
+});
+
+test.cb('standalone configuration file when valid should pass', (t) => {
+  const executeSuccess = exec('./dist/filesize -c=test/config-validation/fixtures/standalone-config/filesize.json');
+
+  executeSuccess.on('exit', (code) => {
+    t.is(code, 0);
+    t.end();
+  });
 });

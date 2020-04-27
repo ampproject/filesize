@@ -1,0 +1,5 @@
+{
+  "filesize": {
+    "track": ["test/config-validation/fixtures/standalone-config/**/*.js"]
+  }
+}
