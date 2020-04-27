@@ -27,19 +27,19 @@ import { TTYReport } from './log/tty-report';
 import { NoTTYReport } from './log/no-tty-report';
 
 const args = mri(process.argv.slice(2), {
-  alias: { p: 'project' },
-  default: { project: process.cwd(), silent: false },
+  alias: { p: 'project', c: 'config' },
+  default: { project: process.cwd(), config: '', silent: false },
 });
 
 /**
  * Read the configuration from the specified project, validate it, perform requested compression, and report the results.
  */
 (async function () {
-  const { project: projectPath, silent } = args;
+  const { project: projectPath, silent, config: requestedConfig } = args;
   const conditions = [Project, Config];
   const context: Context = {
     projectPath,
-    packagePath: '',
+    packagePath: requestedConfig,
     packageContent: '',
     silent,
     originalPaths: new Map(),

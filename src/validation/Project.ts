@@ -16,7 +16,7 @@
 
 import { ConditionFunction, Context } from './Condition';
 import { isDirectory, isFile } from '../helpers/fs';
-import { resolve } from 'path';
+import { resolve, dirname } from 'path';
 import { MakeError } from '../log/helpers/error';
 
 /**
@@ -25,12 +25,21 @@ import { MakeError } from '../log/helpers/error';
  */
 const Project: ConditionFunction = (context: Context) => {
   return async function () {
+    if (context.packagePath !== '') {
+      // The package path was specified up front, its likely not a package.json
+      if (!(await isFile(context.packagePath))) {
+        return MakeError(`config specified '${context.packagePath}' doesn't exist, is this a valid project?`);
+      }
+      context.projectPath = dirname(context.packagePath);
+      return null;
+    }
+
     const projectPath: string = resolve(context.projectPath);
     if (!(await isDirectory(projectPath))) {
       return MakeError(`project specified '${context.projectPath}' doesn't exist, is this a valid project?`);
     }
 
-    const packagePath: string = resolve(context.projectPath, 'package.json');
+    const packagePath = resolve(context.projectPath, 'package.json');
     if (!(await isFile(packagePath))) {
       return MakeError(`Missing '${packagePath}', is this a valid project?`);
     }
