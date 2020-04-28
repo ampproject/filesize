@@ -42,20 +42,23 @@ tap.test('item under requested filesize limit passes from API, using configurati
   t.deepEqual(results, expected);
 });
 
-tap.test('item under requested filesize limit passes from API, using configuration file, with replacement', async (t) => {
-  const sizes: SizeMapValue = [
-    [3401, 3584], // brotli
-    [3731, 4096], // gzip
-    [9317, 10240], // none
-  ];
-  const expected: SizeMap = new Map();
-  expected.set(resolve('test/end-to-end/fixtures/successful/index.js'), sizes);
+tap.test(
+  'item under requested filesize limit passes from API, using configuration file, with replacement',
+  async (t) => {
+    const sizes: SizeMapValue = [
+      [3401, 3584], // brotli
+      [3731, 4096], // gzip
+      [9317, 10240], // none
+    ];
+    const expected: SizeMap = new Map();
+    expected.set(resolve('test/end-to-end/fixtures/successful/index.js'), sizes);
 
-  const results = await report('test/end-to-end/fixtures/successful/filesize.json', (content) =>
-    content.replace(new RegExp('preact.umd.js.map', 'g'), 'FOO.map'),
-  );
-  t.deepEqual(results, expected);
-});
+    const results = await report('test/end-to-end/fixtures/successful/filesize.json', (content) =>
+      content.replace(new RegExp('preact.umd.js.map', 'g'), 'FOO.map'),
+    );
+    t.deepEqual(results, expected);
+  },
+);
 
 tap.test('api is interactive with custom reporter, using configuration file', async (t) => {
   const mapping = new Map([
