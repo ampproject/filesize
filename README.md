@@ -32,7 +32,7 @@ Each file (key in the filesize object) must include an object with key/value pai
 
 **After completing configuration**, invoke `filesize` via: `yarn filesize`. 
 
-Optionally one can target a different project directory via the `p` parameter `yarn filesize -p={PATH}`.
+Optionally one can target a different project directory via the `p` parameter `yarn filesize -p={PATH}`, or a different configuration file via the `c` parameter `yarn filesize -c=${PATH/filesize.json}`.
 
 ### Track Resource Size
 
