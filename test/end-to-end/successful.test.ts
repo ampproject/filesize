@@ -73,7 +73,9 @@ test('item under requested filesize limit passes from API, with replacement', as
   const expected: SizeMap = new Map();
   expected.set(resolve('test/end-to-end/fixtures/successful/index.js'), sizes);
 
-  const results = await report('test/end-to-end/fixtures/successful', (content) => content.replace(new RegExp('preact.umd.js.map', 'g'), 'FOO.map'));
+  const results = await report('test/end-to-end/fixtures/successful', (content) =>
+    content.replace(new RegExp('preact.umd.js.map', 'g'), 'FOO.map'),
+  );
   t.deepEqual(results, expected);
 });
 
@@ -86,7 +88,9 @@ test('item under requested filesize limit passes from API, using configuration f
   const expected: SizeMap = new Map();
   expected.set(resolve('test/end-to-end/fixtures/successful/index.js'), sizes);
 
-  const results = await report('test/end-to-end/fixtures/successful/filesize.json', (content) => content.replace(new RegExp('preact.umd.js.map', 'g'), 'FOO.map'));
+  const results = await report('test/end-to-end/fixtures/successful/filesize.json', (content) =>
+    content.replace(new RegExp('preact.umd.js.map', 'g'), 'FOO.map'),
+  );
   t.deepEqual(results, expected);
 });
 
