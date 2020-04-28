@@ -1,0 +1,24 @@
+{
+  "filesize": {
+    "dist/index.js": {
+      "brotli": "15 kB",
+      "gzip": "20 kB",
+      "none": "500 kB"
+    },
+    "dist/foo.js": {
+      "brotli": "15 kB",
+      "gzip": "20 kB",
+      "none": "500 kB"
+    },
+    "dist/bar.js": {
+      "brotli": "15 kB",
+      "gzip": "20 kB",
+      "none": "500 kB"
+    },
+    "dist/baz.js": {
+      "brotli": "15 kB",
+      "gzip": "20 kB",
+      "none": "500 kB"
+    }
+  }
+}

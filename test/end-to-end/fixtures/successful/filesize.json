@@ -1,0 +1,9 @@
+{
+  "filesize": {
+    "index.js": {
+      "brotli": "3.5 kB",
+      "gzip": "4 kB",
+      "none": "10 kB"
+    }
+  }
+}
