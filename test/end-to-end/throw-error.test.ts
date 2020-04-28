@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import test from 'ava';
+import tap from 'tap';
 import { report } from '../../src/api';
 import { exec } from 'child_process';
 
-test.cb('item with missing file fails with exit code 5', (t) => {
+tap.test('item with missing file fails with exit code 5', (t) => {
   const executeFailure = exec('./dist/filesize -p=test/end-to-end/fixtures/missing-item');
 
   executeFailure.on('exit', (code) => {
@@ -27,7 +27,7 @@ test.cb('item with missing file fails with exit code 5', (t) => {
   });
 });
 
-test.cb('item with missing file fails with exit code 5, using configuration file', (t) => {
+tap.test('item with missing file fails with exit code 5, using configuration file', (t) => {
   const executeFailure = exec('./dist/filesize -c=test/end-to-end/fixtures/missing-item/filesize.json');
 
   executeFailure.on('exit', (code) => {
@@ -36,7 +36,7 @@ test.cb('item with missing file fails with exit code 5, using configuration file
   });
 });
 
-test.cb('too large valid item fails with exit code 6', (t) => {
+tap.test('too large valid item fails with exit code 6', (t) => {
   const executeFailure = exec('./dist/filesize -p=test/end-to-end/fixtures/item-too-large');
 
   executeFailure.on('exit', (code) => {
@@ -45,7 +45,7 @@ test.cb('too large valid item fails with exit code 6', (t) => {
   });
 });
 
-test.cb('too large valid item fails with exit code 6, using configuration file', (t) => {
+tap.test('too large valid item fails with exit code 6, using configuration file', (t) => {
   const executeFailure = exec('./dist/filesize -c=test/end-to-end/fixtures/item-too-large/filesize.json');
 
   executeFailure.on('exit', (code) => {
@@ -54,7 +54,7 @@ test.cb('too large valid item fails with exit code 6, using configuration file',
   });
 });
 
-test('item with missing file throws exception from API', async (t) => {
+tap.test('item with missing file throws exception from API', async (t) => {
   try {
     await report('test/end-to-end/fixtures/missing-item', null);
   } catch (e) {
@@ -62,7 +62,7 @@ test('item with missing file throws exception from API', async (t) => {
   }
 });
 
-test('item with missing file throws exception from API, using configuration file', async (t) => {
+tap.test('item with missing file throws exception from API, using configuration file', async (t) => {
   try {
     await report('test/end-to-end/fixtures/missing-item/filesize.json', null);
   } catch (e) {

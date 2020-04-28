@@ -15,20 +15,14 @@
  */
 
 import { write } from './output';
-import kleur from 'kleur';
-
-// Disable output colors for test runs.
-kleur.enabled = !('AVA_PATH' in process.env);
-// Aliases to colors used.
-// @ts-ignore
-const { red } = kleur;
+import kleur from '@kristoferbaxter/kleur';
 
 /**
  * Format output as an error message.
  * @param output
  */
 export function MakeError(output: string): string {
-  return `${red('error')} ${output}`;
+  return `${kleur.red('error')} ${output}`;
 }
 
 /**

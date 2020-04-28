@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-const kleur = require('kleur');
+import kleur from '@kristoferbaxter/kleur';
 import { Context, OrderedCompressionValues } from '../validation/Condition';
 import { write, erase } from './helpers/output';
 import { ICONS } from './helpers/icons';
 import { CLIReport } from './cli-report';
-
-// Disable output colors for test runs.
-kleur.enabled = !('AVA_PATH' in process.env);
-// Aliases to colors used.
-// @ts-ignore
-const { red, grey, yellow, green, bold, dim } = kleur;
 
 export class TTYReport extends CLIReport {
   private outputLength: number = 0;
@@ -42,20 +36,20 @@ export class TTYReport extends CLIReport {
   private status = () => {
     write(
       '\n  ' +
-        green(this.success + ` ${this.success === 1 ? 'check' : 'checks'} passed`) +
+        kleur.green(this.success + ` ${this.success === 1 ? 'check' : 'checks'} passed`) +
         (this.failure === 0 ? ` ${ICONS['tada']}` : ''),
     );
     this.outputLength++;
     if (this.warning > 0) {
       write(
         '\n  ' +
-          yellow(this.warning + ` ${this.warning === 1 ? 'check' : 'checks'} warned`) +
-          grey(' (within 5% of allowed size)'),
+          kleur.yellow(this.warning + ` ${this.warning === 1 ? 'check' : 'checks'} warned`) +
+          kleur.grey(' (within 5% of allowed size)'),
       );
       this.outputLength++;
     }
     if (this.failure > 0) {
-      write('\n  ' + red(this.failure + ` ${this.failure === 1 ? 'check' : 'checks'} failed`));
+      write('\n  ' + kleur.red(this.failure + ` ${this.failure === 1 ? 'check' : 'checks'} failed`));
       this.outputLength++;
     }
     write('\n\n');
@@ -89,7 +83,12 @@ export class TTYReport extends CLIReport {
         processing += status.processing;
       }
 
-      const icon = failure > 0 ? red(ICONS['cross']) : processing > 0 ? dim().grey('-') : dim().green(ICONS['tick']);
+      const icon =
+        failure > 0
+          ? kleur.red(ICONS['cross'])
+          : processing > 0
+          ? kleur.dim().grey('-')
+          : kleur.dim().green(ICONS['tick']);
       output += `  ${icon}${this.currentLine}\n`;
       this.outputLength++;
     }

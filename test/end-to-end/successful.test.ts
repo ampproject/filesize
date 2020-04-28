@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import test from 'ava';
+import tap from 'tap';
 import { exec } from 'child_process';
 import { report, Report } from '../../src/api';
 import { SizeMapValue, SizeMap } from '../../src/validation/Condition';
 import { resolve, relative } from 'path';
 
-test.cb('item under requested filesize limit passes', (t) => {
+tap.test('item under requested filesize limit passes', (t) => {
   const executeSuccess = exec('./dist/filesize -p=test/end-to-end/fixtures/successful');
 
   executeSuccess.on('exit', (code) => {
@@ -29,7 +29,7 @@ test.cb('item under requested filesize limit passes', (t) => {
   });
 });
 
-test.cb('standalone configuration file when valid should pass', (t) => {
+tap.test('standalone configuration file when valid should pass', (t) => {
   const executeSuccess = exec('./dist/filesize -c=test/end-to-end/fixtures/successful/filesize.json');
 
   executeSuccess.on('exit', (code) => {
@@ -38,7 +38,7 @@ test.cb('standalone configuration file when valid should pass', (t) => {
   });
 });
 
-test('item under requested filesize limit passes from API', async (t) => {
+tap.test('item under requested filesize limit passes from API', async (t) => {
   const sizes: SizeMapValue = [
     [3410, 3584], // brotli
     [3737, 4096], // gzip
@@ -51,7 +51,7 @@ test('item under requested filesize limit passes from API', async (t) => {
   t.deepEqual(results, expected);
 });
 
-test('item under requested filesize limit passes from API, using configuration file', async (t) => {
+tap.test('item under requested filesize limit passes from API, using configuration file', async (t) => {
   const sizes: SizeMapValue = [
     [3410, 3584], // brotli
     [3737, 4096], // gzip
@@ -64,7 +64,7 @@ test('item under requested filesize limit passes from API, using configuration f
   t.deepEqual(results, expected);
 });
 
-test('item under requested filesize limit passes from API, with replacement', async (t) => {
+tap.test('item under requested filesize limit passes from API, with replacement', async (t) => {
   const sizes: SizeMapValue = [
     [3401, 3584], // brotli
     [3731, 4096], // gzip
@@ -79,7 +79,7 @@ test('item under requested filesize limit passes from API, with replacement', as
   t.deepEqual(results, expected);
 });
 
-test('item under requested filesize limit passes from API, using configuration file, with replacement', async (t) => {
+tap.test('item under requested filesize limit passes from API, using configuration file, with replacement', async (t) => {
   const sizes: SizeMapValue = [
     [3401, 3584], // brotli
     [3731, 4096], // gzip
@@ -94,7 +94,7 @@ test('item under requested filesize limit passes from API, using configuration f
   t.deepEqual(results, expected);
 });
 
-test('api is interactive with custom reporter', async (t) => {
+tap.test('api is interactive with custom reporter', async (t) => {
   const mapping = new Map([
     ['preact.js', 3477],
     ['inferno.js', 7297],
@@ -118,7 +118,7 @@ test('api is interactive with custom reporter', async (t) => {
   );
 });
 
-test('api is interactive with custom reporter, using configuration file', async (t) => {
+tap.test('api is interactive with custom reporter, using configuration file', async (t) => {
   const mapping = new Map([
     ['preact.js', 3477],
     ['inferno.js', 7297],

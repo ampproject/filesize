@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-const kleur = require('kleur');
+import kleur from '@kristoferbaxter/kleur';
 import { Context, OrderedCompressionValues, SizeMap } from '../validation/Condition';
 import { write } from './helpers/output';
 import { ICONS } from './helpers/icons';
 import { CLIReport } from './cli-report';
-
-// Disable output colors for test runs.
-kleur.enabled = !('AVA_PATH' in process.env);
-// Aliases to colors used.
-// @ts-ignore
-const { red, grey, yellow, green, bold, dim } = kleur;
 
 export class NoTTYReport extends CLIReport {
   protected maxPathDisplay: number;
@@ -50,9 +44,9 @@ export class NoTTYReport extends CLIReport {
       }
 
       if (failure > 0) {
-        this.currentLine = `  ${red(ICONS['cross'])}${this.currentLine}`;
+        this.currentLine = `  ${kleur.red(ICONS['cross'])}${this.currentLine}`;
       } else {
-        this.currentLine = `  ${dim().green(ICONS['tick'])}${this.currentLine}`;
+        this.currentLine = `  ${kleur.dim().green(ICONS['tick'])}${this.currentLine}`;
       }
 
       write(this.currentLine + '\n');

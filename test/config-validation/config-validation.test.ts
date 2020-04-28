@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import test from 'ava';
+import tap from 'tap';
 import Config from '../../src/validation/Config';
 import { Context } from '../../src/validation/Condition';
 
-test('missing package.json should fail', async (t) => {
+tap.test('missing package.json should fail', async (t) => {
   const context: Context = {
     packagePath: 'test/config-validation/fixtures/missing-package-json/package.json',
     projectPath: 'test/config-validation/fixtures/missing-package-json',
@@ -35,7 +35,7 @@ test('missing package.json should fail', async (t) => {
   t.is(message, `Could not read the configuration in '${context.packagePath}'`);
 });
 
-test('unparseable package.json should fail', async (t) => {
+tap.test('unparseable package.json should fail', async (t) => {
   const context: Context = {
     packagePath: 'test/config-validation/fixtures/unparseable-package-json/package.json',
     projectPath: 'test/config-validation/fixtures/unparseable-package-json',
@@ -52,7 +52,7 @@ test('unparseable package.json should fail', async (t) => {
   t.is(message, `Could not parse '${context.packagePath}'`);
 });
 
-test("missing 'filesize' key from package.json should fail", async (t) => {
+tap.test("missing 'filesize' key from package.json should fail", async (t) => {
   const context: Context = {
     packagePath: 'test/config-validation/fixtures/missing-configuration/package.json',
     projectPath: 'test/config-validation/fixtures/missing-configuration',
@@ -69,7 +69,7 @@ test("missing 'filesize' key from package.json should fail", async (t) => {
   t.is(message, `There is no 'filesize' configuration in '${context.packagePath}'`);
 });
 
-test("missing path from item in 'filesize' should fail", async (t) => {
+tap.test("missing path from item in 'filesize' should fail", async (t) => {
   const context: Context = {
     packagePath: 'test/config-validation/fixtures/item-path-missing/package.json',
     projectPath: 'test/config-validation/fixtures/item-path-missing',
@@ -86,7 +86,7 @@ test("missing path from item in 'filesize' should fail", async (t) => {
   t.is(message, `There is no data inside the 'filesize' configuration in '${context.packagePath}'`);
 });
 
-test("missing maxSize from item in 'filesize' should fail", async (t) => {
+tap.test("missing maxSize from item in 'filesize' should fail", async (t) => {
   const context: Context = {
     packagePath: 'test/config-validation/fixtures/max-size-missing/package.json',
     projectPath: 'test/config-validation/fixtures/max-size-missing',
@@ -103,7 +103,7 @@ test("missing maxSize from item in 'filesize' should fail", async (t) => {
   t.is(message, "Configuration for 'index.js' is invalid. (size unspecified)");
 });
 
-test("missing compression from item in 'filesize' should fail", async (t) => {
+tap.test("missing compression from item in 'filesize' should fail", async (t) => {
   const context: Context = {
     packagePath: 'test/config-validation/fixtures/compression-missing/package.json',
     projectPath: 'test/config-validation/fixtures/compression-missing',
@@ -120,7 +120,7 @@ test("missing compression from item in 'filesize' should fail", async (t) => {
   t.is(message, "Configuration for 'index.js' is invalid. (compression values unspecified)");
 });
 
-test('standalone configuration file when valid should pass', async (t) => {
+tap.test('standalone configuration file when valid should pass', async (t) => {
   const context: Context = {
     packagePath: 'test/config-validation/fixtures/standalone-config/filesize.json',
     projectPath: '',
@@ -137,7 +137,7 @@ test('standalone configuration file when valid should pass', async (t) => {
   t.is(message, null);
 });
 
-test('standalone configuration file when path is invalid should fail', async (t) => {
+tap.test('standalone configuration file when path is invalid should fail', async (t) => {
   const context: Context = {
     packagePath: 'test/config-validation/fixtures/standalone-config/invalid.json',
     projectPath: '',
