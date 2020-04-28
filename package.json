@@ -25,7 +25,7 @@
     "build-tests": "tsc -p test/tsconfig.json",
     "postbuild-tests": "tsc-esm -p test/tsconfig.json",
     "pretest": "yarn npm-run-all build build-tests",
-    "test": "NODE_DISABLE_COLORS=1 tap --no-coverage --no-esm --node-arg=--experimental-modules test/output/**/*.test.mjs",
+    "test": "NODE_DISABLE_COLORS=1 tap --no-coverage --no-esm test/output/**/*.test.mjs",
     "build": "rollup -c; chmod a+x dist/filesize",
     "try": "./dist/filesize",
     "release": "np --no-2fa",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@kristoferbaxter/async": "1.0.0",
-    "@kristoferbaxter/kleur": "4.0.1",
+    "@kristoferbaxter/kleur": "4.0.2",
     "bytes": "3.1.0",
     "fast-glob": "3.2.2",
     "mri": "1.1.5"
