@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import * as path from 'path';
 import Project from './validation/Project';
 import Config from './validation/Config';
 import { Context, FileModifier, SizeMap } from './validation/Condition';
@@ -22,14 +23,23 @@ import { Report } from './log/report';
 export { Report } from './log/report';
 
 export async function report(
-  projectPath: string,
+  configOrProjectPath: string,
   fileModifier: FileModifier,
   report?: typeof Report,
 ): Promise<SizeMap> {
+  let projectPath = '';
+  let packagePath = '';
+  if (path.extname(configOrProjectPath) === '.json') {
+    // The requested config or project path is a config.
+    packagePath = configOrProjectPath;
+  } else {
+    projectPath = configOrProjectPath;
+  }
+
   const conditions = [Project, Config];
   let context: Context = {
     projectPath,
-    packagePath: '',
+    packagePath,
     packageContent: '',
     silent: true,
     originalPaths: new Map(),

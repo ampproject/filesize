@@ -100,7 +100,7 @@ test("missing maxSize from item in 'filesize' should fail", async (t) => {
   };
   const message = await Config(context)();
 
-  t.is(message, `Configuration for 'index.js' is invalid. (size unspecified)`);
+  t.is(message, "Configuration for 'index.js' is invalid. (size unspecified)");
 });
 
 test("missing compression from item in 'filesize' should fail", async (t) => {
@@ -117,5 +117,39 @@ test("missing compression from item in 'filesize' should fail", async (t) => {
   };
   const message = await Config(context)();
 
-  t.is(message, `Configuration for 'index.js' is invalid. (compression values unspecified)`);
+  t.is(message, "Configuration for 'index.js' is invalid. (compression values unspecified)");
+});
+
+test('standalone configuration file when valid should pass', async (t) => {
+  const context: Context = {
+    packagePath: 'test/config-validation/fixtures/standalone-config/filesize.json',
+    projectPath: '',
+    packageContent: '',
+    originalPaths: new Map(),
+    compressed: new Map(),
+    comparison: new Map(),
+    silent: false,
+    fileModifier: null,
+    fileContents: new Map(),
+  };
+  const message = await Config(context)();
+
+  t.is(message, null);
+});
+
+test('standalone configuration file when path is invalid should fail', async (t) => {
+  const context: Context = {
+    packagePath: 'test/config-validation/fixtures/standalone-config/invalid.json',
+    projectPath: '',
+    packageContent: '',
+    originalPaths: new Map(),
+    compressed: new Map(),
+    comparison: new Map(),
+    silent: false,
+    fileModifier: null,
+    fileContents: new Map(),
+  };
+  const message = await Config(context)();
+
+  t.is(message, `Could not read the configuration in '${context.packagePath}'`);
 });
