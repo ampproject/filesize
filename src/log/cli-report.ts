@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-const kleur = require('kleur');
+import kleur from '@kristoferbaxter/kleur';
 import { Report } from './report';
 import { Context, brotliSize, gzipSize, noneSize } from '../validation/Condition';
 import { maxFormatDisplay, formats } from './helpers/format';
@@ -22,12 +22,6 @@ import { maxPathDisplay } from './helpers/path';
 import { write } from './helpers/output';
 import { prettyBytes } from './helpers/bytes';
 import { ICONS } from './helpers/icons';
-
-// Disable output colors for test runs.
-kleur.enabled = !('AVA_PATH' in process.env);
-// Aliases to colors used.
-// @ts-ignore
-const { red, grey, yellow, green, bold, dim } = kleur;
 
 export class CLIReport extends Report {
   protected maxPathDisplay: number;
@@ -45,7 +39,7 @@ export class CLIReport extends Report {
   }
 
   private start(): void {
-    write(bold('\n  Filesizes\n'));
+    write(kleur.bold('\n  Filesizes\n'));
     write(`${''.padEnd(this.maxPathDisplay + 5)} ${formats(this.maxFormatDisplay)}\n`);
   }
 
@@ -69,32 +63,32 @@ export class CLIReport extends Report {
 
     if (size === undefined || size === null) {
       // Will not be calculated.
-      this.currentLine += dim().grey('–'.padEnd(this.maxFormatDisplay));
+      this.currentLine += kleur.dim().grey('–'.padEnd(this.maxFormatDisplay));
       return status;
     }
 
     const outputBytes = prettyBytes(size);
     if (maxSize === undefined) {
-      this.currentLine += dim().grey(outputBytes.padEnd(this.maxFormatDisplay));
+      this.currentLine += kleur.dim().grey(outputBytes.padEnd(this.maxFormatDisplay));
       return status;
     }
     if (size < maxSize) {
       if (1 - size / maxSize < 0.05) {
         this.warning++;
         status.warning++;
-        this.currentLine += yellow(outputBytes.padEnd(this.maxFormatDisplay));
+        this.currentLine += kleur.yellow(outputBytes.padEnd(this.maxFormatDisplay));
         return status;
       }
 
       this.success++;
       status.success++;
-      this.currentLine += dim().green(outputBytes.padEnd(this.maxFormatDisplay));
+      this.currentLine += kleur.dim().green(outputBytes.padEnd(this.maxFormatDisplay));
       return status;
     }
 
     this.failure++;
     status.failure++;
-    this.currentLine += red(outputBytes.padEnd(this.maxFormatDisplay));
+    this.currentLine += kleur.red(outputBytes.padEnd(this.maxFormatDisplay));
     return status;
   }
 
@@ -105,18 +99,18 @@ export class CLIReport extends Report {
     if (success > 0 || failure > 0 || warning > 0) {
       write(
         '\n  ' +
-          green(success + ` ${success === 1 ? 'check' : 'checks'} passed`) +
+          kleur.green(success + ` ${success === 1 ? 'check' : 'checks'} passed`) +
           (failure === 0 ? ` ${ICONS['tada']}` : ''),
       );
       if (warning > 0) {
         write(
           '\n  ' +
-            yellow(warning + ` ${warning === 1 ? 'check' : 'checks'} warned`) +
-            grey(' (within 5% of allowed size)'),
+            kleur.yellow(warning + ` ${warning === 1 ? 'check' : 'checks'} warned`) +
+            kleur.grey(' (within 5% of allowed size)'),
         );
       }
       if (failure > 0) {
-        write('\n  ' + red(failure + ` ${failure === 1 ? 'check' : 'checks'} failed`));
+        write('\n  ' + kleur.red(failure + ` ${failure === 1 ? 'check' : 'checks'} failed`));
       }
       write('\n\n');
     }

@@ -3,6 +3,8 @@ test/output/
 node_modules/
 .vscode/
 .DS_Store
+.nyc_output
+coverage
 yarn-error.log
 yarn.lock
 package-lock.json
