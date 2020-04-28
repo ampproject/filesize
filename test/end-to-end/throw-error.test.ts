@@ -27,8 +27,26 @@ test.cb('item with missing file fails with exit code 5', (t) => {
   });
 });
 
+test.cb('item with missing file fails with exit code 5, using configuration file', (t) => {
+  const executeFailure = exec('./dist/filesize -c=test/end-to-end/fixtures/missing-item/filesize.json');
+
+  executeFailure.on('exit', (code) => {
+    t.is(code, 5);
+    t.end();
+  });
+});
+
 test.cb('too large valid item fails with exit code 6', (t) => {
   const executeFailure = exec('./dist/filesize -p=test/end-to-end/fixtures/item-too-large');
+
+  executeFailure.on('exit', (code) => {
+    t.is(code, 6);
+    t.end();
+  });
+});
+
+test.cb('too large valid item fails with exit code 6, using configuration file', (t) => {
+  const executeFailure = exec('./dist/filesize -c=test/end-to-end/fixtures/item-too-large/filesize.json');
 
   executeFailure.on('exit', (code) => {
     t.is(code, 6);
@@ -39,6 +57,14 @@ test.cb('too large valid item fails with exit code 6', (t) => {
 test('item with missing file throws exception from API', async (t) => {
   try {
     await report('test/end-to-end/fixtures/missing-item', null);
+  } catch (e) {
+    t.is(e, `Configuration for 'index.js' is invalid. (path is not a valid file)`);
+  }
+});
+
+test('item with missing file throws exception from API, using configuration file', async (t) => {
+  try {
+    await report('test/end-to-end/fixtures/missing-item/filesize.json', null);
   } catch (e) {
     t.is(e, `Configuration for 'index.js' is invalid. (path is not a valid file)`);
   }

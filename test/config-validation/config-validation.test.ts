@@ -15,7 +15,6 @@
  */
 
 import test from 'ava';
-import { exec } from 'child_process';
 import Config from '../../src/validation/Config';
 import { Context } from '../../src/validation/Condition';
 
@@ -101,7 +100,7 @@ test("missing maxSize from item in 'filesize' should fail", async (t) => {
   };
   const message = await Config(context)();
 
-  t.is(message, `Configuration for 'index.js' is invalid. (size unspecified)`);
+  t.is(message, "Configuration for 'index.js' is invalid. (size unspecified)");
 });
 
 test("missing compression from item in 'filesize' should fail", async (t) => {
@@ -118,14 +117,39 @@ test("missing compression from item in 'filesize' should fail", async (t) => {
   };
   const message = await Config(context)();
 
-  t.is(message, `Configuration for 'index.js' is invalid. (compression values unspecified)`);
+  t.is(message, "Configuration for 'index.js' is invalid. (compression values unspecified)");
 });
 
-test.cb('standalone configuration file when valid should pass', (t) => {
-  const executeSuccess = exec('./dist/filesize -c=test/config-validation/fixtures/standalone-config/filesize.json');
+test('standalone configuration file when valid should pass', async (t) => {
+  const context: Context = {
+    packagePath: 'test/config-validation/fixtures/standalone-config/filesize.json',
+    projectPath: '',
+    packageContent: '',
+    originalPaths: new Map(),
+    compressed: new Map(),
+    comparison: new Map(),
+    silent: false,
+    fileModifier: null,
+    fileContents: new Map(),
+  };
+  const message = await Config(context)();
 
-  executeSuccess.on('exit', (code) => {
-    t.is(code, 0);
-    t.end();
-  });
+  t.is(message, null);
+});
+
+test('standalone configuration file when path is invalid should fail', async (t) => {
+  const context: Context = {
+    packagePath: 'test/config-validation/fixtures/standalone-config/invalid.json',
+    projectPath: '',
+    packageContent: '',
+    originalPaths: new Map(),
+    compressed: new Map(),
+    comparison: new Map(),
+    silent: false,
+    fileModifier: null,
+    fileContents: new Map(),
+  };
+  const message = await Config(context)();
+
+  t.is(message, `Could not read the configuration in '${context.packagePath}'`);
 });
