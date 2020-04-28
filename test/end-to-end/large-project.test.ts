@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-import { write } from './output';
-import kleur from '@kristoferbaxter/kleur';
+import tap from 'tap';
+import { exec } from 'child_process';
 
-/**
- * Format output as an error message.
- * @param output
- */
-export function MakeError(output: string): string {
-  return `${kleur.red('error')} ${output}`;
-}
+tap.test('too large valid item fails with exit code 6', (t) => {
+  const executeFailure = exec('./dist/filesize -p=test/end-to-end/fixtures/item-too-large');
 
-/**
- * Display output as an error message on the console.
- * @param output
- */
-export function LogError(output: string): void {
-  write(MakeError(output) + '\n');
-}
+  executeFailure.on('exit', (code) => {
+    t.is(code, 6);
+    t.end();
+  });
+});

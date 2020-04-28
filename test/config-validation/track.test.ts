@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import test from 'ava';
+import tap from 'tap';
 import { resolve } from 'path';
 import { report } from '../../src/api';
 import Config from '../../src/validation/Config';
 import { Context, SizeMapValue, SizeMap } from '../../src/validation/Condition';
 
-test('including trackable items should succeed', async (t) => {
+tap.test('including trackable items should succeed', async (t) => {
   const context: Context = {
     packagePath: 'test/config-validation/fixtures/track/package.json',
     projectPath: 'test/config-validation/fixtures/track',
@@ -37,7 +37,7 @@ test('including trackable items should succeed', async (t) => {
   t.is(message, null);
 });
 
-test('trackable items uses glob to find files', async (t) => {
+tap.test('trackable items uses glob to find files', async (t) => {
   const sizes: SizeMapValue = [
     [null, undefined], // brotli
     [null, undefined], // gzip
@@ -50,7 +50,7 @@ test('trackable items uses glob to find files', async (t) => {
   t.deepEqual(results, expected);
 });
 
-test('trackable items uses trackFormats to restrict compression types', async (t) => {
+tap.test('trackable items uses trackFormats to restrict compression types', async (t) => {
   const sizes: SizeMapValue = [
     [null, undefined], // brotli
     [undefined, undefined], // gzip

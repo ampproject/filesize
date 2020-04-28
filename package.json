@@ -25,7 +25,7 @@
     "build-tests": "tsc -p test/tsconfig.json",
     "postbuild-tests": "tsc-esm -p test/tsconfig.json",
     "pretest": "yarn npm-run-all build build-tests",
-    "test": "ava -v --timeout=2m",
+    "test": "NODE_DISABLE_COLORS=1 tap --no-coverage --no-esm --node-arg=--experimental-modules test/output/**/*.test.mjs",
     "build": "rollup -c; chmod a+x dist/filesize",
     "try": "./dist/filesize",
     "release": "np --no-2fa",
@@ -33,9 +33,9 @@
   },
   "dependencies": {
     "@kristoferbaxter/async": "1.0.0",
+    "@kristoferbaxter/kleur": "4.0.1",
     "bytes": "3.1.0",
     "fast-glob": "3.2.2",
-    "kleur": "3.0.3",
     "mri": "1.1.5"
   },
   "devDependencies": {
@@ -46,12 +46,13 @@
     "@types/bytes": "3.1.0",
     "@types/mri": "1.1.0",
     "@types/node": "13.13.4",
-    "ava": "3.8.1",
+    "@types/tap": "14.10.0",
     "np": "https://github.com/pixelastic/np/tarball/c3ab2e3b053c7da0ce40a572ca1616273ac080f8",
     "npm-run-all": "4.1.5",
     "prettier": "2.0.5",
     "rimraf": "3.0.2",
     "rollup": "2.7.3",
+    "tap": "14.10.7",
     "tslib": "1.11.1",
     "typescript": "3.8.3",
     "typescript-esm": "1.0.1"
@@ -77,11 +78,6 @@
     "./dist/api.mjs": {
       "gzip": "10 kB"
     }
-  },
-  "ava": {
-    "files": [
-      "test/output/**/*.test.mjs"
-    ]
   },
   "publishConfig": {
     "access": "public"
