@@ -36,24 +36,6 @@ tap.test('item with missing file fails with exit code 5, using configuration fil
   });
 });
 
-tap.test('too large valid item fails with exit code 6', (t) => {
-  const executeFailure = exec('./dist/filesize -p=test/end-to-end/fixtures/item-too-large');
-
-  executeFailure.on('exit', (code) => {
-    t.is(code, 6);
-    t.end();
-  });
-});
-
-tap.test('too large valid item fails with exit code 6, using configuration file', (t) => {
-  const executeFailure = exec('./dist/filesize -c=test/end-to-end/fixtures/item-too-large/filesize.json');
-
-  executeFailure.on('exit', (code) => {
-    t.is(code, 6);
-    t.end();
-  });
-});
-
 tap.test('item with missing file throws exception from API', async (t) => {
   try {
     await report('test/end-to-end/fixtures/missing-item', null);
