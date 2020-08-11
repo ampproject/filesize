@@ -36,7 +36,7 @@
     "@kristoferbaxter/kleur": "4.0.2",
     "bytes": "3.1.0",
     "fast-glob": "3.2.2",
-    "mri": "1.1.5"
+    "mri": "1.1.6"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "0.26.0",
