@@ -4,7 +4,7 @@
 
 Uses native compression from Node Core, attempts to parallelize compression work across available CPUs, and requires Node >= `12`.
 
-![Interactive UI Processing Large Files](https://github.com/ampproject/filesize/raw/master/.github/preview.gif)
+![Interactive UI Processing Large Files](https://raw.githubusercontent.com/michaeljaltamirano/filesize/main/.github/preview.gif)
 
 ## Installation
 
