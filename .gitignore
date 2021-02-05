@@ -4,6 +4,7 @@ node_modules/
 .vscode/
 .DS_Store
 .nyc_output
+.rollup.cache
 coverage
 yarn-error.log
 yarn.lock
