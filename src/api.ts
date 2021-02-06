@@ -27,7 +27,7 @@ export async function report(
   configOrProjectPath: string,
   fileModifier: FileModifier,
   report?: typeof Report,
-  silent?: boolean,   
+  silent?: boolean,
 ): Promise<SizeMap> {
   let projectPath = '';
   let packagePath = '';
