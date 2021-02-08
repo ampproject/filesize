@@ -28,12 +28,16 @@ const Compare: ConditionFunction = (context: Context) => {
     if (context.comparisonPath !== '') {
       // The comparison path was specified up front
       if (!(await isFile(context.comparisonPath))) {
-        return MakeError(`comparison path specified '${context.comparisonPath}' doesn't exist, is this a valid comparison?`);
+        return MakeError(
+          `comparison path specified '${context.comparisonPath}' doesn't exist, is this a valid comparison?`,
+        );
       }
 
       const comparisonFileContent = await readFile(context.comparisonPath);
       if (comparisonFileContent === null) {
-        return MakeError(`comparison path specified '${context.comparisonPath}' appears invalid, does it have contents?`);
+        return MakeError(
+          `comparison path specified '${context.comparisonPath}' appears invalid, does it have contents?`,
+        );
       }
 
       context.comparison = new Map(JSON.parse(comparisonFileContent)) as SizeMap;
