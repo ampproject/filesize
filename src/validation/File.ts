@@ -17,7 +17,7 @@
 import { Compression, Context, SizeMapValue, SizeMapValueIndex } from './Condition';
 import { resolve, isAbsolute } from 'path';
 import { isFile } from '../helpers/fs';
-import bytes from 'bytes';
+import bytes from '@kristoferbaxter/bytes';
 
 /**
  * Format input string to a known Compression Enum Value.

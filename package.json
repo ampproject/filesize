@@ -34,7 +34,7 @@
   "dependencies": {
     "@kristoferbaxter/async": "1.0.0",
     "@kristoferbaxter/kleur": "4.0.2",
-    "bytes": "3.1.0",
+    "@kristoferbaxter/bytes": "0.1.2",
     "fast-glob": "3.2.5",
     "mri": "1.1.6"
   },
@@ -43,7 +43,6 @@
     "@rollup/plugin-commonjs": "17.1.0",
     "@rollup/plugin-node-resolve": "11.1.1",
     "@rollup/plugin-typescript": "8.1.1",
-    "@types/bytes": "3.1.0",
     "@types/mri": "1.1.0",
     "@types/node": "14.14.25",
     "@types/tap": "14.10.2",

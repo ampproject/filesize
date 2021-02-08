@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-const bytes = require('bytes');
+import bytes from '@kristoferbaxter/bytes';
 
 /**
  * Format size into more human readable string.
