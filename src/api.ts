@@ -21,11 +21,13 @@ import { Context, FileModifier, SizeMap } from './validation/Condition';
 import compress, { CompressionItem, findItemsToCompress } from './compress';
 import { Report } from './log/report';
 export { Report } from './log/report';
+export { NoTTYReport } from './log/no-tty-report';
 
 export async function report(
   configOrProjectPath: string,
   fileModifier: FileModifier,
   report?: typeof Report,
+  silent?: boolean,
 ): Promise<SizeMap> {
   let projectPath = '';
   let packagePath = '';
@@ -41,7 +43,7 @@ export async function report(
     projectPath,
     packagePath,
     packageContent: '',
-    silent: true,
+    silent: silent ?? true,
     originalPaths: new Map(),
     // Stores the result of compression <path, [...results]>
     compressed: new Map(),
