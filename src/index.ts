@@ -28,14 +28,14 @@ import { NoTTYReport } from './log/no-tty-report';
 
 const args = mri(process.argv.slice(2), {
   alias: { p: 'project', c: 'config' },
-  default: { project: process.cwd(), config: '', silent: false },
+  default: { project: process.cwd(), config: '', silent: false, compare: '' },
 });
 
 /**
  * Read the configuration from the specified project, validate it, perform requested compression, and report the results.
  */
 (async function () {
-  const { project: projectPath, silent, config: requestedConfig } = args;
+  const { project: projectPath, silent, config: requestedConfig, compare } = args;
   const conditions = [Project, Config];
   const context: Context = {
     projectPath,
@@ -47,6 +47,7 @@ const args = mri(process.argv.slice(2), {
     compressed: new Map(),
     // Stores the basis of comparison.
     comparison: new Map(),
+    comparisonPath: compare,
     fileModifier: null,
     fileContents: new Map(),
   };

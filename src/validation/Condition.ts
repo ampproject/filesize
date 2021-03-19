@@ -60,6 +60,8 @@ export interface Context {
   compressed: SizeMap;
   // Stores the basis of comparison.
   comparison: SizeMap;
+  // The filepath of a comparison map
+  comparisonPath: string;
   // Allows the API to specify a method that alters content before analysis.
   fileModifier: FileModifier;
   // Stores the contents of files, to avoid reading from disk per compression type.
