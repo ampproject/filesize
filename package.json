@@ -52,7 +52,7 @@
     "rimraf": "3.0.2",
     "rollup": "2.38.5",
     "tap": "14.11.0",
-    "tslib": "2.1.0",
+    "tslib": "2.2.0",
     "typescript": "4.1.3",
     "typescript-esm": "2.0.0"
   },
