@@ -35,7 +35,7 @@
     "@kristoferbaxter/async": "1.0.0",
     "@kristoferbaxter/kleur": "4.0.2",
     "@kristoferbaxter/bytes": "0.1.2",
-    "fast-glob": "3.2.5",
+    "fast-glob": "3.3.2",
     "mri": "1.1.6"
   },
   "devDependencies": {
