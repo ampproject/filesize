@@ -36,14 +36,14 @@
     "@kristoferbaxter/kleur": "4.0.2",
     "@kristoferbaxter/bytes": "0.1.2",
     "fast-glob": "3.2.5",
-    "mri": "1.1.6"
+    "mri": "1.2.0"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "0.26.0",
     "@rollup/plugin-commonjs": "17.1.0",
     "@rollup/plugin-node-resolve": "11.1.1",
     "@rollup/plugin-typescript": "8.1.1",
-    "@types/mri": "1.1.0",
+    "@types/mri": "1.2.0",
     "@types/node": "14.14.35",
     "@types/tap": "14.10.2",
     "np": "https://github.com/pixelastic/np/tarball/c3ab2e3b053c7da0ce40a572ca1616273ac080f8",
